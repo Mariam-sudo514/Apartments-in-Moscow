@@ -4,9 +4,9 @@ Moscow Apartments is a Next.js foundation for the staged migration of a legacy a
 
 ## Migration status
 
-Stage 3 static Home sections are implemented: the Hero, Why Choose Us feature cards, and the static Contacts teaser. Stage 2 shared responsive Header/Footer, local Montserrat/Roboto fonts, RU/EN navigation, the Footer language switch, and safe placeholder social links remain in place.
+Stage 4A adds a typed apartment data foundation for all 12 legacy properties. RU/EN catalog and detail data, price modes, source provenance, map embeds, cover paths, and ordered gallery manifests are prepared in `src/data/apartments` using the shared domain types in `src/types/apartment.ts`. Stage 3 static Home sections remain implemented: the Hero, Why Choose Us feature cards, and the static Contacts teaser. Stage 2 shared responsive Header/Footer, local Montserrat/Roboto fonts, RU/EN navigation, the Footer language switch, and safe placeholder social links remain in place.
 
-The apartment slider, booking forms, catalog and apartment details, and backend functionality are not implemented yet. CAPTCHA, reservation widgets, email delivery, and the remaining legacy Home sections are also outside the current scope.
+The catalog UI, detail routes, apartment slider, booking forms, and backend functionality are not implemented yet. The prepared translations and catalog/detail discrepancies require later content review. CAPTCHA, reservation widgets, email delivery, and the remaining legacy Home sections are also outside the current scope.
 
 ## Technology stack
 
