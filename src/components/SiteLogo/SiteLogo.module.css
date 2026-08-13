@@ -1,0 +1,38 @@
+.logo {
+  flex: 0 0 auto;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.full,
+.compact {
+  display: block;
+}
+
+.compact {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .logo.navigation .full {
+    display: none;
+  }
+
+  .logo.navigation .compact {
+    display: block;
+  }
+}
+
+@media (max-width: 450px) {
+  .logo.footer .full {
+    display: none;
+  }
+
+  .logo.footer .compact {
+    display: block;
+  }
+}

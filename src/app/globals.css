@@ -4,7 +4,71 @@
   box-sizing: border-box;
 }
 
+html {
+  min-width: 320px;
+}
+
 body {
   margin: 0;
-  font-family: inherit;
+  padding-bottom: env(safe-area-inset-bottom);
+  color: #191919;
+  background-color: #ffffff;
+  font-family: var(--font-montserrat), sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.lock {
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  padding: 0;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+main,
+header,
+footer,
+nav {
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #ff6d75;
+  outline-offset: 4px;
 }

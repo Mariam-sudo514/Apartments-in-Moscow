@@ -1,0 +1,30 @@
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  white-space: nowrap;
+}
+
+.link {
+  display: inline-block;
+  min-width: 20px;
+  padding: 2px 0;
+  color: #ffffff;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.link:hover,
+.active {
+  color: #ff868c;
+}
+
+.active {
+  cursor: default;
+}

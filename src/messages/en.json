@@ -1,4 +1,32 @@
 {
+  "brand": {
+    "logoAlt": "Moscow Apartments"
+  },
+  "navigation": {
+    "ariaLabel": "Main navigation",
+    "home": "Home",
+    "apartments": "Apartments",
+    "contacts": "Contacts"
+  },
+  "mobileMenu": {
+    "open": "Open menu",
+    "close": "Close menu",
+    "overlay": "Close navigation menu"
+  },
+  "footer": {
+    "ariaLabel": "Footer navigation",
+    "copyright": "© {year} All rights reserved"
+  },
+  "languageSwitcher": {
+    "ariaLabel": "Language selection",
+    "ru": "RU",
+    "en": "EN"
+  },
+  "social": {
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "email": "Email"
+  },
   "pages": {
     "home": "Home",
     "apartments": "Apartments",

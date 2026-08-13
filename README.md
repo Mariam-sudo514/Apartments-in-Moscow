@@ -4,7 +4,7 @@ Moscow Apartments is a Next.js foundation for the staged migration of a legacy a
 
 ## Migration status
 
-Stage 1 is complete: the App Router foundation, strict TypeScript configuration, localized routing, minimal technical pages, and a health endpoint are in place. Legacy UI, content, images, booking functionality, CAPTCHA, and styles have not been migrated yet.
+Stage 2 is complete: a shared responsive Header and Footer, local Montserrat/Roboto fonts, RU/EN navigation, a Footer language switch, and placeholder social links are in place. Legacy page UI, content, apartment data, images, booking functionality, CAPTCHA, and styles have not been migrated yet.
 
 ## Technology stack
 
@@ -12,6 +12,7 @@ Stage 1 is complete: the App Router foundation, strict TypeScript configuration,
 - React 19
 - TypeScript with strict checks
 - `next-intl` for locale-aware routing and server-side messages
+- `react-icons` for shared social and menu icons
 - ESLint
 - npm
 
@@ -62,6 +63,8 @@ English uses the `/en` prefix:
 - `/en/reservation`
 
 The health endpoint is available at `/api/health` and is independent of locale routing.
+
+The shared Header and Footer use the existing responsive contract, including the 900px mobile menu breakpoint, the 950px Footer navigation breakpoint, and the 450px Footer stacking breakpoint. Montserrat and Roboto are loaded from local variable font files. The Footer language switch keeps the current route, query parameters, and hash while using RU/EN placeholder routing. Social links intentionally use safe `example.com` and `hello@example.com` placeholders.
 
 ## Future work
 
