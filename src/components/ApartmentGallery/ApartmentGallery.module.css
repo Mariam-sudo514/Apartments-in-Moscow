@@ -1,0 +1,142 @@
+.block {
+  flex: 0 1 60%;
+  min-width: 0;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  height: 500px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgb(0 0 0 / 10%);
+}
+
+.imageButton {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.image {
+  padding: 10px;
+  object-fit: cover;
+  border-radius: 22px;
+}
+
+.navigationButton {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 60px;
+  color: #ffffff;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.9;
+  transform: translateY(-50%);
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.navigationButton:hover,
+.navigationButton:focus-visible {
+  background-color: rgb(25 25 25 / 35%);
+  opacity: 1;
+}
+
+.navigationButton svg {
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.5;
+}
+
+.previous {
+  left: 7%;
+}
+
+.next {
+  right: 7%;
+}
+
+.position {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2;
+  padding: 4px 9px;
+  color: #ffffff;
+  background: rgb(25 25 25 / 58%);
+  border-radius: 4px;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+@media (max-width: 1200px) {
+  .frame {
+    aspect-ratio: 12 / 11;
+    height: auto;
+  }
+}
+
+@media (max-width: 1010px) {
+  .block {
+    flex-basis: 60%;
+  }
+}
+
+@media (max-width: 960px) {
+  .frame {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .block {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .frame {
+    max-width: none;
+    height: 500px;
+    aspect-ratio: auto;
+  }
+}
+
+@media (max-width: 800px) {
+  .frame {
+    height: 450px;
+  }
+}
+
+@media (max-width: 700px) {
+  .frame {
+    height: auto;
+    aspect-ratio: 12 / 9;
+  }
+}
+
+@media (max-width: 380px) {
+  .position {
+    right: 15px;
+    bottom: 15px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 310px) {
+  .frame {
+    aspect-ratio: 9 / 9;
+  }
+}

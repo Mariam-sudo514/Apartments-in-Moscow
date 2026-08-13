@@ -1,0 +1,111 @@
+.section {
+  padding: 0 30px;
+  margin-top: 30px;
+  margin-bottom: 80px;
+  color: #191919;
+}
+
+.title {
+  margin-bottom: 30px;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.mapSection {
+  width: fit-content;
+  max-width: 100%;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 5px 15px rgb(0 0 0 / 10%);
+}
+
+.mapFrame {
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.map {
+  display: block;
+  width: 600px;
+  max-width: 100%;
+  height: 400px;
+  aspect-ratio: 3 / 2;
+  border: 0;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .section {
+    margin-bottom: 60px;
+  }
+
+  .map {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 680px) {
+  .mapSection {
+    width: 100%;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 630px) {
+  .map {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 500px) {
+  .title {
+    font-size: 27px;
+  }
+
+  .mapSection {
+    padding: 25px;
+  }
+
+  .map {
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 430px) {
+  .map {
+    max-width: 290px;
+  }
+}
+
+@media (max-width: 380px) {
+  .title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 310px) {
+  .title {
+    font-size: 19px;
+  }
+}
+
+@media (max-width: 300px) {
+  .title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 280px) {
+  .mapSection {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .map {
+    max-width: 200px;
+  }
+}

@@ -298,6 +298,26 @@ const aframeSections: readonly ApartmentSection[] = [
       text('Чистота и забота в каждой детали', 'Cleanliness and care in every detail'),
     ],
   ),
+  section(
+    text('Стоимость для двух гостей', 'Price for double occupancy'),
+    [],
+    [
+      text('Пн–Чт, Вс — 8 000 ₽ за ночь (минимальное бронирование — 2 ночи)', 'Mon–Thu, Sun 8,000 RUB/night (minimum 2-night booking)'),
+      text('Пт–Сб — 10 000 ₽ за ночь (минимальное бронирование — 2 ночи)', 'Fri–Sat 10,000 RUB/night (minimum 2-night booking)'),
+    ],
+  ),
+  section(
+    text('Дополнительная информация', 'Additional information'),
+    [],
+    [
+      text('Бронирование на 1 день возможно при наличии свободных дат, но стоимость увеличивается на плату за уборку и 1 500 ₽', 'Booking for 1 day is possible if dates are available, but the price will increase by the cleaning fee + 1,500 RUB'),
+      text('Дополнительный гость — 1 000 ₽ за ночь', 'Additional guest +1,000 RUB/night'),
+      text('Проживание с собакой возможно, условия обсуждаются отдельно', 'Accommodation with a dog is possible and discussed separately'),
+      text('Депозит 5 000 ₽ возвращается в течение 24 часов после осмотра дома', 'Deposit of 5,000 RUB is returned within 24 hours after house inspection'),
+      text('Купель оплачивается отдельно', 'Tub is paid for separately'),
+      text('Раннее заселение возможно за дополнительную плату', 'Early check-in is possible for an additional fee'),
+    ],
+  ),
 ];
 
 const standardApartmentDetail = (

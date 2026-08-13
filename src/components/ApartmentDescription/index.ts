@@ -1,0 +1,1 @@
+export {ApartmentDescription} from './ApartmentDescription';

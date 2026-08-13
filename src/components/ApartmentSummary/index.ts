@@ -1,0 +1,1 @@
+export {ApartmentSummary} from './ApartmentSummary';

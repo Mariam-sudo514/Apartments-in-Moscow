@@ -33,6 +33,39 @@
     "contacts": "Contacts",
     "reservation": "Reservation"
   },
+  "apartments": {
+    "title": "Apartments",
+    "moreDetails": "More details",
+    "perDay": "Per day",
+    "from": "From",
+    "bookingCta": "BOOK NOW",
+    "breadcrumbs": {
+      "ariaLabel": "Breadcrumbs",
+      "home": "Home",
+      "apartments": "Apartments"
+    },
+    "gallery": {
+      "region": "Apartment gallery",
+      "previous": "Previous image",
+      "next": "Next image",
+      "image": "Apartment image",
+      "positionPrefix": "Image",
+      "positionOf": "of"
+    },
+    "detail": {
+      "rules": "House rules",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "amenities": "Amenities",
+      "map": "On the map"
+    }
+  },
+  "metadata": {
+    "siteTitle": "Moscow Apartments",
+    "catalogTitle": "Apartments in Moscow",
+    "catalogDescription": "A catalog of apartments and an A-frame house with localized descriptions, prices, and addresses.",
+    "detailSuffix": "Moscow Apartments"
+  },
   "home": {
     "hero": {
       "title": "Comfortable apartments in Moscow",

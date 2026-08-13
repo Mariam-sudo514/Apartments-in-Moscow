@@ -6,7 +6,12 @@ import {locales, type Locale} from '@/types/locale';
 
 import styles from './LanguageSwitcher.module.css';
 
-type LocalizedPathname = '/' | '/apartments' | '/contacts' | '/reservation';
+type LocalizedPathname =
+  | '/'
+  | '/apartments'
+  | '/contacts'
+  | '/reservation'
+  | `/apartments/${string}`;
 
 type LanguageSwitcherProps = {
   ariaLabel: string;
@@ -37,8 +42,12 @@ function withoutLocale(pathname: string): string {
 function getSafePathname(pathname: string): LocalizedPathname {
   const candidate = withoutLocale(pathname);
 
-  return knownPathnames.includes(candidate as LocalizedPathname)
-    ? (candidate as LocalizedPathname)
+  if (knownPathnames.includes(candidate as LocalizedPathname)) {
+    return candidate as LocalizedPathname;
+  }
+
+  return /^\/apartments\/[^/]+$/.test(candidate)
+    ? (candidate as `/apartments/${string}`)
     : '/';
 }
 

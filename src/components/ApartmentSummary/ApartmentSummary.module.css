@@ -1,0 +1,184 @@
+.block {
+  display: flex;
+  flex: 0 1 40%;
+  flex-direction: column;
+  min-width: 0;
+  padding: 50px 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgb(0 0 0 / 10%);
+}
+
+.type {
+  margin-bottom: 20px;
+  color: #8d8d8d;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.price {
+  color: #191919;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.separator,
+.perDay {
+  font-size: 0.88em;
+}
+
+.address {
+  margin-top: 20px;
+  color: #191919;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.description {
+  margin-top: 30px;
+  margin-bottom: 20px;
+  color: #8d8d8d;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.linkBlock {
+  display: flex;
+  align-self: center;
+  margin-top: auto;
+}
+
+.button {
+  display: block;
+  padding: 11px 35px;
+  margin: 40px auto 0;
+  color: #ffffff;
+  background: #ff4149;
+  border-radius: 14px;
+  box-shadow: 0 8px 15px rgb(234 106 151 / 20%);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.button:hover {
+  box-shadow: 0 8px 15px rgb(251 132 138 / 47%);
+  transform: translateY(-5px);
+}
+
+@media (max-width: 1150px) {
+  .block {
+    max-width: 400px;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .block {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 960px) {
+  .block {
+    max-width: 370px;
+    padding: 30px 25px;
+  }
+
+  .button {
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 934px) {
+  .block {
+    padding: 60px 20px 0;
+  }
+
+  .button {
+    margin-top: 30px;
+  }
+
+  .price {
+    font-size: 25px;
+  }
+
+  .address {
+    font-size: 14px;
+  }
+
+  .description {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .block {
+    width: 100%;
+    max-width: none;
+    padding: 45px 35px;
+  }
+
+  .button {
+    margin-top: 30px;
+  }
+}
+
+@media (max-width: 380px) {
+  .price {
+    font-size: 22px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+
+  .button {
+    padding: 11px 25px;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 310px) {
+  .block {
+    padding: 35px 30px;
+  }
+
+  .price {
+    font-size: 18px;
+  }
+
+  .description {
+    font-size: 12px;
+  }
+
+  .button {
+    padding: 10px 25px;
+    margin-top: 15px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 280px) {
+  .price {
+    font-size: 18px;
+  }
+
+  .description {
+    margin-top: 20px;
+  }
+
+  .button {
+    padding: 10px 20px;
+    font-size: 12px;
+  }
+}

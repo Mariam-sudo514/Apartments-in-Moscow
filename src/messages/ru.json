@@ -33,6 +33,39 @@
     "contacts": "Контакты",
     "reservation": "Бронирование"
   },
+  "apartments": {
+    "title": "Квартиры",
+    "moreDetails": "Подробнее",
+    "perDay": "За сутки",
+    "from": "От",
+    "bookingCta": "ЗАБРОНИРОВАТЬ",
+    "breadcrumbs": {
+      "ariaLabel": "Хлебные крошки",
+      "home": "Главная",
+      "apartments": "Квартиры"
+    },
+    "gallery": {
+      "region": "Галерея апартаментов",
+      "previous": "Предыдущее изображение",
+      "next": "Следующее изображение",
+      "image": "Изображение апартаментов",
+      "positionPrefix": "Изображение",
+      "positionOf": "из"
+    },
+    "detail": {
+      "rules": "Правила проживания",
+      "checkIn": "Заезд",
+      "checkOut": "Выезд",
+      "amenities": "Удобства",
+      "map": "На карте"
+    }
+  },
+  "metadata": {
+    "siteTitle": "Moscow Apartments",
+    "catalogTitle": "Квартиры в Москве",
+    "catalogDescription": "Каталог апартаментов и A-frame дома с локализованными описаниями, ценами и адресами.",
+    "detailSuffix": "Moscow Apartments"
+  },
   "home": {
     "hero": {
       "title": "Комфортные апартаменты в Москве",
