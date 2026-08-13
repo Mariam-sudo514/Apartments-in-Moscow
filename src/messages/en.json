@@ -1,0 +1,9 @@
+{
+  "pages": {
+    "home": "Home",
+    "apartments": "Apartments",
+    "contacts": "Contacts",
+    "reservation": "Reservation"
+  },
+  "notFound": "Page not found"
+}
