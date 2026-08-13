@@ -90,6 +90,16 @@
         }
       }
     },
+    "apartments": {
+      "title": "Our apartments",
+      "carouselLabel": "Apartment carousel",
+      "carouselRole": "carousel",
+      "previous": "Previous apartment",
+      "next": "Next apartment",
+      "paginationBullet": "Go to apartment",
+      "slideLabelPrefix": "Apartment",
+      "slideLabelOf": "of"
+    },
     "contacts": {
       "title": "Contacts",
       "subtitle": "We are always available — write or call, we will help with the booking",

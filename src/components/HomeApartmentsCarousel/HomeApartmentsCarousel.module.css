@@ -1,0 +1,278 @@
+.carouselFrame {
+  position: relative;
+  max-width: 1100px;
+  padding: 20px 10px;
+  margin: 0 60px 35px;
+  overflow: hidden;
+}
+
+.swiper {
+  width: 100%;
+  overflow: hidden;
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+.card {
+  display: flex;
+  height: auto;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgb(0 0 0 / 10%);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.imageFrame {
+  position: relative;
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 9;
+  margin: 10px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.tag {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  max-width: calc(100% - 30px);
+  padding: 5px 15px;
+  overflow-wrap: anywhere;
+  color: #8d8d8d;
+  background: rgb(255 255 255 / 90%);
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 10px 25px 25px;
+}
+
+.title {
+  margin-bottom: 15px;
+  color: #191919;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.description {
+  margin-bottom: 20px;
+  color: #8d8d8d;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 15px;
+  margin-top: auto;
+  border-top: 1px solid rgb(0 0 0 / 8%);
+}
+
+.priceBlock {
+  min-width: 0;
+}
+
+.price {
+  color: #191919;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.priceRole {
+  color: #8d8d8d;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.button {
+  flex: 0 0 auto;
+  padding: 10px 25px;
+  color: #ffffff;
+  background: #ff4149;
+  border-radius: 14px;
+  box-shadow: 0 8px 15px rgb(241 99 123 / 20%);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.button:hover {
+  box-shadow: 0 8px 15px rgb(241 99 132 / 30%);
+  transform: translateY(-3px);
+}
+
+.navigationButton {
+  position: absolute;
+  z-index: 2;
+  top: calc(50% - 35px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  color: #8d8d8d;
+  background: rgb(255 255 255 / 88%);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.navigationButton svg {
+  width: 24px;
+  height: 24px;
+}
+
+.navigationButton:hover {
+  color: #ff6d75;
+  background: #ffffff;
+}
+
+.previousButton {
+  left: 0;
+}
+
+.nextButton {
+  right: 0;
+}
+
+.swiper :global(.swiper-pagination) {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 15px;
+  margin-top: 18px;
+}
+
+.swiper :global(.swiper-pagination-bullet) {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin: 0 4px !important;
+  overflow: hidden;
+  opacity: 1;
+  background: #f8b1bc;
+}
+
+.swiper :global(.swiper-pagination-bullet-active) {
+  background: #f16382;
+}
+
+.swiper :global(.swiper-pagination-bullet-active)::before {
+  position: absolute;
+  inset: 0;
+  background: #f16382;
+  content: '';
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: autoplay-loading 5s linear forwards;
+}
+
+@keyframes autoplay-loading {
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 1050px) {
+  .carouselFrame {
+    margin-right: 30px;
+    margin-left: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .carouselFrame {
+    margin: 0 10px 25px;
+  }
+
+  .navigationButton {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 320px) {
+  .carouselFrame {
+    margin-top: 0;
+  }
+
+  .content {
+    padding: 10px 20px 20px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .description {
+    font-size: 12px;
+  }
+
+  .price {
+    font-size: 14px;
+  }
+
+  .priceRole {
+    font-size: 12px;
+  }
+
+  .button {
+    padding: 10px 17px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .button,
+  .navigationButton {
+    transition: none;
+  }
+
+  .swiper :global(.swiper-wrapper) {
+    transition-duration: 0ms !important;
+  }
+
+  .swiper :global(.swiper-pagination-bullet-active)::before {
+    animation: none;
+  }
+}
