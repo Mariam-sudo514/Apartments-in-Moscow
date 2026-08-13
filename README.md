@@ -1,10 +1,12 @@
 # Moscow Apartments
 
-Moscow Apartments is a Next.js foundation for the staged migration of a legacy apartment-rental website. This repository currently contains only the technical scaffold for localized routing and future migration work.
+Moscow Apartments is a Next.js foundation for the staged migration of a legacy apartment-rental website.
 
 ## Migration status
 
-Stage 2 is complete: a shared responsive Header and Footer, local Montserrat/Roboto fonts, RU/EN navigation, a Footer language switch, and placeholder social links are in place. Legacy page UI, content, apartment data, images, booking functionality, CAPTCHA, and styles have not been migrated yet.
+Stage 3 static Home sections are implemented: the Hero, Why Choose Us feature cards, and the static Contacts teaser. Stage 2 shared responsive Header/Footer, local Montserrat/Roboto fonts, RU/EN navigation, the Footer language switch, and safe placeholder social links remain in place.
+
+The apartment slider, booking forms, catalog and apartment details, and backend functionality are not implemented yet. CAPTCHA, reservation widgets, email delivery, and the remaining legacy Home sections are also outside the current scope.
 
 ## Technology stack
 

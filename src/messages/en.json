@@ -33,5 +33,43 @@
     "contacts": "Contacts",
     "reservation": "Reservation"
   },
+  "home": {
+    "hero": {
+      "title": "Comfortable apartments in Moscow",
+      "description": "Modern interior, perfect location, and easy booking. Everything you need for both leisure and work.",
+      "cta": "BOOK NOW",
+      "imageAlt": "Moscow apartment interior collage"
+    },
+    "why": {
+      "title": "Why choose us?",
+      "features": {
+        "safety": {
+          "title": "Safety",
+          "description": "You relax peacefully, we take care of your comfort"
+        },
+        "priceQuality": {
+          "title": "Price and quality",
+          "description": "Honest rates and comfort without unnecessary expenses"
+        },
+        "location": {
+          "title": "Location",
+          "description": "All the important places in the city are nearby, saving your time"
+        }
+      }
+    },
+    "contacts": {
+      "title": "Contacts",
+      "subtitle": "We are always available — write or call, we will help with the booking",
+      "bookingDepartment": "Booking department:",
+      "actions": {
+        "whatsapp": "Message on WhatsApp",
+        "telegram": "Message on Telegram",
+        "email": "Email the booking department"
+      },
+      "panelTitle": "Get in touch",
+      "panelText": "Choose a convenient way to contact us",
+      "contactsLink": "Open contacts"
+    }
+  },
   "notFound": "Page not found"
 }

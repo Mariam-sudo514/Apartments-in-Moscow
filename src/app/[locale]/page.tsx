@@ -1,7 +1,13 @@
-import {getTranslations} from 'next-intl/server';
+import {ContactsTeaser} from '@/components/ContactsTeaser';
+import {HomeHero} from '@/components/HomeHero';
+import {WhyChoose} from '@/components/WhyChoose';
 
 export default async function HomePage() {
-  const t = await getTranslations('pages');
-
-  return <h1>{t('home')}</h1>;
+  return (
+    <>
+      <HomeHero />
+      <WhyChoose />
+      <ContactsTeaser />
+    </>
+  );
 }
