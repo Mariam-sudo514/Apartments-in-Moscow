@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type {
+  BookingApiAcceptedResponse,
   BookingApiErrorCode,
   BookingApiQuote,
   BookingApiResponse
@@ -14,6 +15,7 @@ const BASE_HEADERS = {
 
 const MESSAGES: Record<BookingApiErrorCode, string> = {
   DELIVERY_NOT_CONFIGURED: 'Booking delivery is not configured.',
+  DELIVERY_FAILED: 'The local booking delivery could not complete the request.',
   INTERNAL_ERROR: 'The booking service could not complete the request.',
   INVALID_JSON: 'The request body is not valid JSON.',
   INVALID_REQUEST: 'The booking request is invalid.',
@@ -64,4 +66,19 @@ export function createDeliveryNotConfiguredResponse(quote: BookingApiQuote): Res
     },
     503
   );
+}
+
+export function createBookingAcceptedResponse(quote: BookingApiQuote): Response {
+  const body: BookingApiAcceptedResponse = {
+    code: 'BOOKING_REQUEST_ACCEPTED',
+    ok: true,
+    quote: {
+      amount: quote.amount,
+      currency: quote.currency,
+      nights: quote.nights,
+      priceMode: quote.priceMode
+    }
+  };
+
+  return createBookingResponse(body, 200);
 }

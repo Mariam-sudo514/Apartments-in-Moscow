@@ -30,6 +30,7 @@ export type BookingFieldErrors = {
   readonly apartment?: string;
   readonly today?: string;
   readonly reservation?: string;
+  readonly server?: string;
 };
 
 export type BookingValidationLabels = {
@@ -59,7 +60,25 @@ export type BookingContactLabels = Pick<
   'guestNameLabel' | 'guestNamePlaceholder' | 'guestPhoneLabel' | 'guestPhonePlaceholder'
 >;
 
-export type BookingLabels = BookingValidationLabels & {
+export type BookingSendLabels = {
+  readonly sendRequest: string;
+  readonly sending: string;
+  readonly successMessage: string;
+  readonly networkFailure: string;
+  readonly invalidResponse: string;
+  readonly requestInvalid: string;
+  readonly requestForbidden: string;
+  readonly requestPayloadTooLarge: string;
+  readonly requestUnsupportedMedia: string;
+  readonly requestValidationFailed: string;
+  readonly requestRateLimited: string;
+  readonly serverMisconfigured: string;
+  readonly deliveryNotConfigured: string;
+  readonly deliveryFailed: string;
+  readonly retry: string;
+};
+
+export type BookingLabels = BookingValidationLabels & BookingSendLabels & {
   readonly title: string;
   readonly description: string;
   readonly review: string;
@@ -68,7 +87,7 @@ export type BookingLabels = BookingValidationLabels & {
   readonly reviewedMessage: string;
 };
 
-export type HomeBookingLabels = BookingValidationLabels & {
+export type HomeBookingLabels = BookingValidationLabels & BookingSendLabels & {
   readonly title: string;
   readonly description: string;
   readonly contactTitle: string;

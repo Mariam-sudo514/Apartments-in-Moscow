@@ -7,6 +7,7 @@ import {
   BookingInvalidJsonError,
   bookingRateLimiter,
   calculateTrustedBookingQuote,
+  createBookingAcceptedResponse,
   createBookingErrorResponse,
   createDeliveryNotConfiguredResponse,
   getBookingRateLimitKey,
@@ -16,6 +17,7 @@ import {
   readJsonBody,
   validateBookingPayload
 } from '@/server/booking';
+import {deliverBookingEmail} from '@/server/mail';
 
 export const runtime = 'nodejs';
 
@@ -79,7 +81,21 @@ export async function POST(request: Request): Promise<Response> {
     return createBookingErrorResponse('INTERNAL_ERROR', 500);
   }
 
-  return createDeliveryNotConfiguredResponse(quote);
+  const delivery = await deliverBookingEmail(validation.request, quote);
+
+  if (delivery.kind === 'not_configured') {
+    return createDeliveryNotConfiguredResponse(quote);
+  }
+
+  if (delivery.kind === 'server_misconfigured') {
+    return createBookingErrorResponse('SERVER_MISCONFIGURED', 503);
+  }
+
+  if (delivery.kind === 'delivery_failed') {
+    return createBookingErrorResponse('DELIVERY_FAILED', 503);
+  }
+
+  return createBookingAcceptedResponse(quote);
 }
 
 function methodNotAllowed(): Response {

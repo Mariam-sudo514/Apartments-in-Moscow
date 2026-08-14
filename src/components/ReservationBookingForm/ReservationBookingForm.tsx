@@ -1,7 +1,12 @@
 import type {ChangeEvent, FormEvent} from 'react';
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 import {BookingContactFields} from '@/components/BookingContactFields';
+import {BookingHoneypot} from '@/components/BookingHoneypot';
+import {
+  getBookingClientErrorMessage,
+  submitBookingRequest
+} from '@/lib/booking/booking-api-client';
 import {validateBooking} from '@/lib/booking';
 import type {Locale} from '@/types/locale';
 import type {IsoDate} from '@/types/reservation';
@@ -35,6 +40,8 @@ type ReviewState = {
   readonly reservationKey: string;
 };
 
+type SendStatus = 'idle' | 'sending' | 'success' | 'error';
+
 export function ReservationBookingForm({
   adults,
   apartmentSlug,
@@ -58,12 +65,49 @@ export function ReservationBookingForm({
   const [reviewAttempted, setReviewAttempted] = useState(false);
   const [errors, setErrors] = useState<BookingFieldErrors>({});
   const [reviewState, setReviewState] = useState<ReviewState | null>(null);
-  const reservationKey = [checkIn ?? '', checkOut ?? '', adults, childrenCount, apartmentSlug ?? ''].join('|');
+  const [serverErrors, setServerErrors] = useState<BookingFieldErrors>({});
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
+  const [website, setWebsite] = useState('');
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const submissionVersionRef = useRef(0);
+  const reservationKey = [
+    checkIn ?? '',
+    checkOut ?? '',
+    adults,
+    childrenCount,
+    apartmentSlug ?? '',
+    guestName,
+    guestPhone
+  ].join('|');
   const draft = reviewState?.reservationKey === reservationKey ? reviewState.draft : null;
+
+  useEffect(() => {
+    if (reviewState?.reservationKey !== undefined && reviewState.reservationKey !== reservationKey) {
+      submissionVersionRef.current += 1;
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = null;
+    }
+  }, [reservationKey, reviewState?.reservationKey]);
+
+  useEffect(() => () => {
+    abortControllerRef.current?.abort();
+  }, []);
+
+  function invalidateReview(): void {
+    submissionVersionRef.current += 1;
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setReviewState(null);
+    setServerErrors({});
+    setSendError(null);
+    setSendStatus('idle');
+  }
 
   function clearFieldError(field: 'guestName' | 'guestPhone'): void {
     setErrors((current) => ({...current, [field]: undefined}));
-    setReviewState(null);
+    setServerErrors((current) => ({...current, [field]: undefined}));
+    invalidateReview();
   }
 
   function handleNameChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -134,21 +178,98 @@ export function ReservationBookingForm({
 
     if (!result.ok) {
       setReviewState(null);
+      setServerErrors({});
+      setSendError(null);
+      setSendStatus('idle');
       setErrors(result.errors);
       focusFirstError(result);
       return;
     }
 
     setErrors({});
+    setServerErrors({});
+    setSendError(null);
+    setSendStatus('idle');
     setReviewState({draft: result.draft, reservationKey});
   }
 
-  const guestNameError = (reviewAttempted || touched.guestName) ? errors.guestName : undefined;
-  const guestPhoneError = (reviewAttempted || touched.guestPhone) ? errors.guestPhone : undefined;
+  function getServerFieldErrors(
+    fields: Readonly<Record<string, string>> | undefined
+  ): BookingFieldErrors {
+    const nextErrors: Record<string, string> = {};
+
+    for (const [field, code] of Object.entries(fields ?? {})) {
+      if (field === 'guestName') {
+        nextErrors.guestName = code === 'required'
+          ? labels.guestNameRequired
+          : code === 'too_short'
+            ? labels.guestNameTooShort
+            : code === 'too_long'
+              ? labels.guestNameTooLong
+              : code === 'control_characters'
+                ? labels.guestNameControlCharacters
+                : labels.requestValidationFailed;
+      } else if (field === 'guestPhone') {
+        nextErrors.guestPhone = code === 'required'
+          ? labels.guestPhoneRequired
+          : code === 'too_short'
+            ? labels.guestPhoneTooShort
+            : code === 'too_long'
+              ? labels.guestPhoneTooLong
+              : labels.guestPhoneFormat;
+      } else {
+        nextErrors.reservation = labels.requestValidationFailed;
+      }
+    }
+
+    return nextErrors;
+  }
+
+  async function handleSendRequest(): Promise<void> {
+    if (draft === null || sendStatus === 'sending' || sendStatus === 'success') {
+      return;
+    }
+
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    const version = ++submissionVersionRef.current;
+    abortControllerRef.current = controller;
+    setSendStatus('sending');
+    setSendError(null);
+    setServerErrors({});
+
+    const result = await submitBookingRequest({...draft, website}, controller.signal);
+
+    if (version !== submissionVersionRef.current || controller.signal.aborted) {
+      return;
+    }
+
+    abortControllerRef.current = null;
+
+    if (result.ok) {
+      setSendStatus('success');
+      return;
+    }
+
+    if (result.failure.kind === 'aborted') {
+      return;
+    }
+
+    setSendStatus('error');
+    setSendError(getBookingClientErrorMessage(result.failure, labels));
+
+    if (result.failure.kind === 'server' && result.failure.code === 'VALIDATION_FAILED') {
+      setReviewState(null);
+      setServerErrors(getServerFieldErrors(result.failure.fields));
+    }
+  }
+
+  const guestNameError = (reviewAttempted || touched.guestName) ? errors.guestName ?? serverErrors.guestName : undefined;
+  const guestPhoneError = (reviewAttempted || touched.guestPhone) ? errors.guestPhone ?? serverErrors.guestPhone : undefined;
   const errorItems = [
     {error: guestNameError, id: 'reservation-guest-name', label: labels.guestNameLabel},
     {error: guestPhoneError, id: 'reservation-guest-phone', label: labels.guestPhoneLabel},
-    {error: reviewAttempted ? errors.reservation : undefined, id: 'reservation-booking-form', label: labels.title}
+    {error: reviewAttempted ? errors.reservation ?? serverErrors.reservation : undefined, id: 'reservation-booking-form', label: labels.title}
   ].filter((item): item is {error: string; id: string; label: string} => Boolean(item.error));
 
   return (
@@ -156,6 +277,7 @@ export function ReservationBookingForm({
       <form
         aria-describedby={errorItems.length > 0 ? 'reservation-booking-errors' : undefined}
         className={styles.form}
+        id="reservation-booking-form"
         noValidate
         onSubmit={handleSubmit}
         ref={formRef}
@@ -178,6 +300,7 @@ export function ReservationBookingForm({
                       event.preventDefault();
                       if (item.id === 'reservation-guest-name') guestNameRef.current?.focus();
                       if (item.id === 'reservation-guest-phone') guestPhoneRef.current?.focus();
+                      if (item.id === 'reservation-booking-form') formRef.current?.focus();
                     }}
                   >
                     {item.label}: {item.error}
@@ -217,10 +340,31 @@ export function ReservationBookingForm({
         {!reservationReady ? <p className={styles.disabledHint}>{labels.reviewDisabledHint}</p> : null}
 
         {draft !== null ? (
-          <p aria-live="polite" className={styles.reviewedMessage} role="status">
-            {labels.reviewedMessage}
-          </p>
+          <>
+            <p aria-live="polite" className={styles.reviewedMessage} role="status">
+              {sendStatus === 'success' ? labels.successMessage : labels.reviewedMessage}
+            </p>
+            <button
+              aria-busy={sendStatus === 'sending'}
+              className={styles.reviewButton}
+              disabled={sendStatus === 'sending' || sendStatus === 'success'}
+              onClick={handleSendRequest}
+              type="button"
+            >
+              {sendStatus === 'sending'
+                ? labels.sending
+                : sendStatus === 'error'
+                  ? labels.retry
+                  : labels.sendRequest}
+            </button>
+            {sendError !== null ? (
+              <p aria-live="assertive" className={styles.fieldError} role="alert">
+                {sendError}
+              </p>
+            ) : null}
+          </>
         ) : null}
+        <BookingHoneypot value={website} onChange={(event) => setWebsite(event.target.value)} />
       </form>
     </section>
   );

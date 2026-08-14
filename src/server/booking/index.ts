@@ -20,6 +20,7 @@ export {
 export {calculateTrustedBookingQuote} from './booking-quote';
 export {
   createBookingErrorResponse,
+  createBookingAcceptedResponse,
   createDeliveryNotConfiguredResponse
 } from './booking-response';
 export {validateBookingPayload} from './booking-validation';

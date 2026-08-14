@@ -18,6 +18,7 @@ export type BookingApiErrorCode =
   | 'VALIDATION_FAILED'
   | 'RATE_LIMITED'
   | 'DELIVERY_NOT_CONFIGURED'
+  | 'DELIVERY_FAILED'
   | 'INTERNAL_ERROR';
 
 export type BookingApiError = {
@@ -26,10 +27,20 @@ export type BookingApiError = {
   readonly fields?: Readonly<Record<string, string>>;
 };
 
-export type BookingApiResponse = {
+export type BookingApiFailureResponse = {
   readonly ok: false;
   readonly error: BookingApiError;
   readonly quote?: BookingApiQuote;
 };
+
+export type BookingApiAcceptedQuote = Omit<BookingApiQuote, 'apartmentSlug'>;
+
+export type BookingApiAcceptedResponse = {
+  readonly ok: true;
+  readonly code: 'BOOKING_REQUEST_ACCEPTED';
+  readonly quote: BookingApiAcceptedQuote;
+};
+
+export type BookingApiResponse = BookingApiFailureResponse | BookingApiAcceptedResponse;
 
 export type ValidatedBookingRequest = BookingRequestDraft;

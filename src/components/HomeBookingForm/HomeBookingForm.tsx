@@ -4,6 +4,11 @@ import type {ChangeEvent, FormEvent, KeyboardEvent as ReactKeyboardEvent} from '
 import {useEffect, useRef, useState} from 'react';
 
 import {BookingContactFields} from '@/components/BookingContactFields';
+import {BookingHoneypot} from '@/components/BookingHoneypot';
+import {
+  getBookingClientErrorMessage,
+  submitBookingRequest
+} from '@/lib/booking/booking-api-client';
 import {getMoscowTodayIso, addCalendarDays, compareCalendarDates} from '@/lib/reservation/calendar';
 import {validateBooking} from '@/lib/booking';
 import type {Locale} from '@/types/locale';
@@ -32,6 +37,8 @@ type ReviewState = {
   readonly formKey: string;
 };
 
+type SendStatus = 'idle' | 'sending' | 'success' | 'error';
+
 const initialTouched: TouchedFields = {
   apartment: false,
   checkIn: false,
@@ -57,6 +64,12 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
   const [reviewAttempted, setReviewAttempted] = useState(false);
   const [errors, setErrors] = useState<BookingFieldErrors>({});
   const [reviewState, setReviewState] = useState<ReviewState | null>(null);
+  const [serverErrors, setServerErrors] = useState<BookingFieldErrors>({});
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
+  const [website, setWebsite] = useState('');
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const submissionVersionRef = useRef(0);
   const formKey = [guestName, guestPhone, checkIn ?? '', checkOut ?? '', selectedApartmentSlug ?? ''].join('|');
   const draft = reviewState?.formKey === formKey ? reviewState.draft : null;
   const checkOutMin = checkIn === null ? todayIso ?? undefined : addCalendarDays(checkIn, 1);
@@ -70,9 +83,24 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
     return () => window.clearTimeout(timer);
   }, []);
 
+  useEffect(() => () => {
+    abortControllerRef.current?.abort();
+  }, []);
+
+  function invalidateReview(): void {
+    submissionVersionRef.current += 1;
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setReviewState(null);
+    setServerErrors({});
+    setSendError(null);
+    setSendStatus('idle');
+  }
+
   function clearFieldError(field: keyof BookingFieldErrors): void {
     setErrors((current) => ({...current, [field]: undefined}));
-    setReviewState(null);
+    setServerErrors((current) => ({...current, [field]: undefined}));
+    invalidateReview();
   }
 
   function handleNameChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -173,13 +201,98 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
 
     if (!result.ok) {
       setReviewState(null);
+      setServerErrors({});
+      setSendError(null);
+      setSendStatus('idle');
       setErrors(result.errors);
       focusFirstError(result);
       return;
     }
 
     setErrors({});
+    setServerErrors({});
+    setSendError(null);
+    setSendStatus('idle');
     setReviewState({draft: result.draft, formKey});
+  }
+
+  function getServerFieldErrors(
+    fields: Readonly<Record<string, string>> | undefined
+  ): BookingFieldErrors {
+    const nextErrors: Record<string, string> = {};
+
+    for (const [field, code] of Object.entries(fields ?? {})) {
+      if (field === 'guestName') {
+        nextErrors.guestName = code === 'required'
+          ? labels.guestNameRequired
+          : code === 'too_short'
+            ? labels.guestNameTooShort
+            : code === 'too_long'
+              ? labels.guestNameTooLong
+              : code === 'control_characters'
+                ? labels.guestNameControlCharacters
+                : labels.requestValidationFailed;
+      } else if (field === 'guestPhone') {
+        nextErrors.guestPhone = code === 'required'
+          ? labels.guestPhoneRequired
+          : code === 'too_short'
+            ? labels.guestPhoneTooShort
+            : code === 'too_long'
+              ? labels.guestPhoneTooLong
+              : labels.guestPhoneFormat;
+      } else if (field === 'checkIn') {
+        nextErrors.checkIn = code === 'past' ? labels.checkInPast : labels.checkInRequired;
+      } else if (field === 'checkOut') {
+        nextErrors.checkOut = code === 'must_be_after_check_in'
+          ? labels.checkOutAfterCheckIn
+          : labels.checkOutRequired;
+      } else if (field === 'apartmentSlug') {
+        nextErrors.apartment = labels.apartmentRequired;
+      } else {
+        nextErrors.server = labels.requestValidationFailed;
+      }
+    }
+
+    return nextErrors;
+  }
+
+  async function handleSendRequest(): Promise<void> {
+    if (draft === null || sendStatus === 'sending' || sendStatus === 'success') {
+      return;
+    }
+
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    const version = ++submissionVersionRef.current;
+    abortControllerRef.current = controller;
+    setSendStatus('sending');
+    setSendError(null);
+    setServerErrors({});
+
+    const result = await submitBookingRequest({...draft, website}, controller.signal);
+
+    if (version !== submissionVersionRef.current || controller.signal.aborted) {
+      return;
+    }
+
+    abortControllerRef.current = null;
+
+    if (result.ok) {
+      setSendStatus('success');
+      return;
+    }
+
+    if (result.failure.kind === 'aborted') {
+      return;
+    }
+
+    setSendStatus('error');
+    setSendError(getBookingClientErrorMessage(result.failure, labels));
+
+    if (result.failure.kind === 'server' && result.failure.code === 'VALIDATION_FAILED') {
+      setReviewState(null);
+      setServerErrors(getServerFieldErrors(result.failure.fields));
+    }
   }
 
   function focusErrorTarget(id: string): void {
@@ -188,6 +301,7 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
     if (id === 'home-check-in') checkInRef.current?.focus();
     if (id === 'home-check-out') checkOutRef.current?.focus();
     if (id === 'home-apartment') apartmentRef.current?.focus();
+    if (id === 'home-booking-server') formRef.current?.focus();
   }
 
   function handleFormKeyDown(event: ReactKeyboardEvent<HTMLFormElement>): void {
@@ -197,17 +311,18 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
     }
   }
 
-  const guestNameError = (reviewAttempted || touched.guestName) ? errors.guestName : undefined;
-  const guestPhoneError = (reviewAttempted || touched.guestPhone) ? errors.guestPhone : undefined;
-  const checkInError = (reviewAttempted || touched.checkIn) ? errors.checkIn : undefined;
-  const checkOutError = (reviewAttempted || touched.checkOut) ? errors.checkOut : undefined;
-  const apartmentError = (reviewAttempted || touched.apartment) ? errors.apartment : undefined;
+  const guestNameError = (reviewAttempted || touched.guestName) ? errors.guestName ?? serverErrors.guestName : undefined;
+  const guestPhoneError = (reviewAttempted || touched.guestPhone) ? errors.guestPhone ?? serverErrors.guestPhone : undefined;
+  const checkInError = (reviewAttempted || touched.checkIn) ? errors.checkIn ?? serverErrors.checkIn : undefined;
+  const checkOutError = (reviewAttempted || touched.checkOut) ? errors.checkOut ?? serverErrors.checkOut : undefined;
+  const apartmentError = (reviewAttempted || touched.apartment) ? errors.apartment ?? serverErrors.apartment : undefined;
   const errorItems = [
     {error: guestNameError, id: 'home-guest-name', label: labels.guestNameLabel},
     {error: guestPhoneError, id: 'home-guest-phone', label: labels.guestPhoneLabel},
     {error: checkInError, id: 'home-check-in', label: labels.checkInLabel},
     {error: checkOutError, id: 'home-check-out', label: labels.checkOutLabel},
-    {error: apartmentError, id: 'home-apartment', label: labels.apartmentLabel}
+    {error: apartmentError, id: 'home-apartment', label: labels.apartmentLabel},
+    {error: serverErrors.server, id: 'home-booking-server', label: labels.title}
   ].filter((item): item is {error: string; id: string; label: string} => Boolean(item.error));
 
   return (
@@ -345,10 +460,31 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
       </button>
       {reviewDisabled ? <p className={styles.disabledHint}>{labels.reviewDisabledHint}</p> : null}
       {draft !== null ? (
-        <p aria-live="polite" className={styles.reviewedMessage} role="status">
-          {labels.reviewedMessage}
-        </p>
+        <>
+          <p aria-live="polite" className={styles.reviewedMessage} role="status">
+            {sendStatus === 'success' ? labels.successMessage : labels.reviewedMessage}
+          </p>
+          <button
+            aria-busy={sendStatus === 'sending'}
+            className={styles.reviewButton}
+            disabled={sendStatus === 'sending' || sendStatus === 'success'}
+            onClick={handleSendRequest}
+            type="button"
+          >
+            {sendStatus === 'sending'
+              ? labels.sending
+              : sendStatus === 'error'
+                ? labels.retry
+                : labels.sendRequest}
+          </button>
+          {sendError !== null ? (
+            <p aria-live="assertive" className={styles.fieldError} role="alert">
+              {sendError}
+            </p>
+          ) : null}
+        </>
       ) : null}
+      <BookingHoneypot value={website} onChange={(event) => setWebsite(event.target.value)} />
     </form>
   );
 }
