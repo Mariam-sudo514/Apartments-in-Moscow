@@ -28,6 +28,7 @@ import {
   type CalendarMonth
 } from '@/lib/reservation/calendar';
 import {getPluralForm} from '@/lib/reservation/plural';
+import {ReservationBookingForm} from '@/components/ReservationBookingForm';
 import type {Locale} from '@/types/locale';
 import type {
   IsoDate,
@@ -102,6 +103,12 @@ export function ReservationWidget({
   const total = nights !== null && selectedApartment !== null
     ? nights * selectedApartment.price
     : null;
+  const reservationReady =
+    checkIn !== null &&
+    checkOut !== null &&
+    selectedApartment !== null &&
+    nights !== null &&
+    nights > 0;
   const secondMonth = shiftMonth(displayedMonth, 1);
   const visibleCalendarDates = [displayedMonth, secondMonth].flatMap((month) =>
     Array.from({length: getDaysInMonth(month)}, (_, index) =>
@@ -662,6 +669,17 @@ export function ReservationWidget({
           {summaryAnnouncement}
         </p>
       </section>
+
+      <ReservationBookingForm
+        adults={adults}
+        apartmentSlug={selectedApartmentSlug}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        childrenCount={childrenCount}
+        labels={labels.booking}
+        locale={locale}
+        reservationReady={reservationReady}
+      />
     </div>
   );
 }

@@ -144,6 +144,27 @@
       "Choose an apartment address",
       "Review the booking information"
     ],
+    "booking": {
+      "title": "Guest details",
+      "description": "Enter your name and phone for local review. Nothing is sent at this stage.",
+      "guestNameLabel": "Guest name",
+      "guestNamePlaceholder": "Enter your name",
+      "guestPhoneLabel": "Phone",
+      "guestPhonePlaceholder": "+1 000 000 0000",
+      "review": "Review details",
+      "reviewDisabledHint": "Choose valid dates and an apartment first.",
+      "errorSummaryTitle": "Check the highlighted fields",
+      "guestNameRequired": "Enter the guest name.",
+      "guestNameTooShort": "The name must contain at least 2 characters.",
+      "guestNameTooLong": "The name must not exceed 100 characters.",
+      "guestNameControlCharacters": "The name must not contain control characters.",
+      "guestPhoneRequired": "Enter a phone number.",
+      "guestPhoneFormat": "Use digits and the symbols +, spaces, parentheses, or hyphens.",
+      "guestPhoneTooShort": "The number must contain at least 7 digits.",
+      "guestPhoneTooLong": "The number must contain no more than 15 digits.",
+      "reservationIncomplete": "Choose valid dates and an apartment before reviewing details.",
+      "reviewedMessage": "The details passed local validation. The request has not been sent."
+    },
     "adults": {
       "one": "adult",
       "few": "adults",

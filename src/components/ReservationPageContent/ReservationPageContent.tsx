@@ -78,7 +78,28 @@ function getReservationLabels(
     summaryTotal: t('summaryTotal'),
     summaryUpdate: t('summaryUpdate'),
     title: t('title'),
-    today: t('today')
+    today: t('today'),
+    booking: {
+      description: t('booking.description'),
+      errorSummaryTitle: t('booking.errorSummaryTitle'),
+      guestNameControlCharacters: t('booking.guestNameControlCharacters'),
+      guestNameLabel: t('booking.guestNameLabel'),
+      guestNamePlaceholder: t('booking.guestNamePlaceholder'),
+      guestNameRequired: t('booking.guestNameRequired'),
+      guestNameTooLong: t('booking.guestNameTooLong'),
+      guestNameTooShort: t('booking.guestNameTooShort'),
+      guestPhoneFormat: t('booking.guestPhoneFormat'),
+      guestPhoneLabel: t('booking.guestPhoneLabel'),
+      guestPhonePlaceholder: t('booking.guestPhonePlaceholder'),
+      guestPhoneRequired: t('booking.guestPhoneRequired'),
+      guestPhoneTooLong: t('booking.guestPhoneTooLong'),
+      guestPhoneTooShort: t('booking.guestPhoneTooShort'),
+      reservationIncomplete: t('booking.reservationIncomplete'),
+      review: t('booking.review'),
+      reviewDisabledHint: t('booking.reviewDisabledHint'),
+      reviewedMessage: t('booking.reviewedMessage'),
+      title: t('booking.title')
+    }
   };
 }
 

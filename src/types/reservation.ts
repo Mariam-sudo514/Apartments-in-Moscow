@@ -1,4 +1,5 @@
 import type {ApartmentPriceMode} from './apartment';
+import type {BookingLabels} from './booking';
 
 export type IsoDate = `${number}-${number}-${number}`;
 
@@ -64,4 +65,5 @@ export type ReservationLabels = {
   readonly adults: ReservationPluralForms;
   readonly children: ReservationPluralForms;
   readonly nights: ReservationPluralForms;
+  readonly booking: BookingLabels;
 };
