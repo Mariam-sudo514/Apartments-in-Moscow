@@ -82,6 +82,11 @@ function getReservationLabels(
     booking: {
       description: t('booking.description'),
       errorSummaryTitle: t('booking.errorSummaryTitle'),
+      apartmentRequired: t('booking.apartmentRequired'),
+      checkInPast: t('booking.checkInPast'),
+      checkInRequired: t('booking.checkInRequired'),
+      checkOutAfterCheckIn: t('booking.checkOutAfterCheckIn'),
+      checkOutRequired: t('booking.checkOutRequired'),
       guestNameControlCharacters: t('booking.guestNameControlCharacters'),
       guestNameLabel: t('booking.guestNameLabel'),
       guestNamePlaceholder: t('booking.guestNamePlaceholder'),
@@ -98,6 +103,7 @@ function getReservationLabels(
       review: t('booking.review'),
       reviewDisabledHint: t('booking.reviewDisabledHint'),
       reviewedMessage: t('booking.reviewedMessage'),
+      todayInitializing: t('booking.todayInitializing'),
       title: t('booking.title')
     }
   };

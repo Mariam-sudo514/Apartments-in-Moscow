@@ -1,5 +1,6 @@
 import {ContactsTeaser} from '@/components/ContactsTeaser';
 import {HomeApartmentsSection} from '@/components/HomeApartmentsSection';
+import {HomeBookingSection} from '@/components/HomeBookingSection';
 import {HomeHero} from '@/components/HomeHero';
 import {WhyChoose} from '@/components/WhyChoose';
 import {isLocale, type Locale} from '@/types/locale';
@@ -26,6 +27,7 @@ export default async function HomePage({params}: HomePageProps) {
       <HomeHero />
       <WhyChoose />
       <HomeApartmentsSection locale={locale} />
+      <HomeBookingSection locale={locale} />
       <ContactsTeaser />
     </>
   );

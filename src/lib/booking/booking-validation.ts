@@ -1,6 +1,10 @@
-import {getNights} from '@/lib/reservation/calendar';
+import {
+  compareCalendarDates,
+  getNights
+} from '@/lib/reservation/calendar';
 import type {
   BookingDraftResult,
+  BookingFieldErrors,
   BookingValidationInput
 } from '@/types/booking';
 
@@ -17,12 +21,14 @@ export function getPhoneDigits(value: string): string {
   return value.replace(/\D/gu, '');
 }
 
+export function validateBooking(
+  input: BookingValidationInput & {readonly source: 'home'}
+): BookingDraftResult<'home'>;
+export function validateBooking(
+  input: BookingValidationInput & {readonly source: 'reservation'}
+): BookingDraftResult<'reservation'>;
 export function validateBooking(input: BookingValidationInput): BookingDraftResult {
-  const errors: {
-    guestName?: string;
-    guestPhone?: string;
-    reservation?: string;
-  } = {};
+  const errors: Partial<Record<keyof BookingFieldErrors, string>> = {};
   const guestName = input.guestName.trim();
   const guestPhone = input.guestPhone.trim();
   const guestNameLength = countCharacters(guestName);
@@ -54,17 +60,42 @@ export function validateBooking(input: BookingValidationInput): BookingDraftResu
     errors.guestPhone = input.labels.guestPhoneTooLong;
   }
 
-  if (
+  if (input.todayIso === null) {
+    errors.today = input.labels.todayInitializing;
+  }
+
+  if (input.checkIn === null) {
+    errors.checkIn = input.labels.checkInRequired;
+  } else if (
+    input.todayIso !== null &&
+    compareCalendarDates(input.checkIn, input.todayIso) < 0
+  ) {
+    errors.checkIn = input.labels.checkInPast;
+  }
+
+  if (input.checkOut === null) {
+    errors.checkOut = input.labels.checkOutRequired;
+  } else if (input.checkIn !== null && (nights === null || nights <= 0)) {
+    errors.checkOut = input.labels.checkOutAfterCheckIn;
+  }
+
+  if (input.apartmentSlug === null) {
+    errors.apartment = input.labels.apartmentRequired;
+  }
+
+  if (input.source === 'reservation' && (
     input.apartmentSlug === null ||
     input.checkIn === null ||
     input.checkOut === null ||
     nights === null ||
     nights <= 0 ||
+    input.adults === undefined ||
     input.adults < 1 ||
     input.adults > 10 ||
+    input.children === undefined ||
     input.children < 0 ||
     input.children > 10
-  ) {
+  )) {
     errors.reservation = input.labels.reservationIncomplete;
   }
 
@@ -72,17 +103,41 @@ export function validateBooking(input: BookingValidationInput): BookingDraftResu
     return {errors, ok: false};
   }
 
+  if (
+    input.apartmentSlug === null ||
+    input.checkIn === null ||
+    input.checkOut === null
+  ) {
+    return {errors: {reservation: input.labels.reservationIncomplete}, ok: false};
+  }
+
+  const base = {
+    apartmentSlug: input.apartmentSlug,
+    checkIn: input.checkIn,
+    checkOut: input.checkOut,
+    guestName,
+    guestPhone,
+    locale: input.locale
+  };
+
+  if (input.source === 'reservation') {
+    if (input.adults === undefined || input.children === undefined) {
+      return {errors: {reservation: input.labels.reservationIncomplete}, ok: false};
+    }
+
+    return {
+      draft: createBookingRequestDraft({
+        ...base,
+        adults: input.adults,
+        children: input.children,
+        source: input.source
+      }),
+      ok: true
+    };
+  }
+
   return {
-    draft: createBookingRequestDraft({
-      adults: input.adults,
-      apartmentSlug: input.apartmentSlug as string,
-      checkIn: input.checkIn as `${number}-${number}-${number}`,
-      checkOut: input.checkOut as `${number}-${number}-${number}`,
-      children: input.children,
-      guestName,
-      guestPhone,
-      locale: input.locale
-    }),
+    draft: createBookingRequestDraft({...base, source: input.source}),
     ok: true
   };
 }

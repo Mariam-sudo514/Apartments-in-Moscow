@@ -9,22 +9,24 @@ type BookingDraftPayloadInput = {
   readonly apartmentSlug: string;
   readonly checkIn: IsoDate;
   readonly checkOut: IsoDate;
-  readonly adults: number;
-  readonly children: number;
-};
+} & (
+  | {readonly source: 'home'}
+  | {readonly source: 'reservation'; readonly adults: number; readonly children: number}
+);
 
 export function createBookingRequestDraft(
   input: BookingDraftPayloadInput
 ): BookingRequestDraft {
-  return {
-    adults: input.adults,
+  const base = {
     apartmentSlug: input.apartmentSlug,
     checkIn: input.checkIn,
     checkOut: input.checkOut,
-    children: input.children,
     guestName: input.guestName.trim(),
     guestPhone: input.guestPhone.trim(),
-    locale: input.locale,
-    source: 'reservation'
+    locale: input.locale
   };
+
+  return input.source === 'reservation'
+    ? {...base, adults: input.adults, children: input.children, source: input.source}
+    : {...base, source: input.source};
 }

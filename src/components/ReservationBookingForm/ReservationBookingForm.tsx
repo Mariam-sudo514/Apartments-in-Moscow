@@ -1,6 +1,7 @@
 import type {ChangeEvent, FormEvent} from 'react';
 import {useRef, useState} from 'react';
 
+import {BookingContactFields} from '@/components/BookingContactFields';
 import {validateBooking} from '@/lib/booking';
 import type {Locale} from '@/types/locale';
 import type {IsoDate} from '@/types/reservation';
@@ -21,6 +22,7 @@ type ReservationBookingFormProps = {
   readonly labels: BookingLabels;
   readonly locale: Locale;
   readonly reservationReady: boolean;
+  readonly todayIso: IsoDate;
 };
 
 type TouchedFields = {
@@ -41,7 +43,8 @@ export function ReservationBookingForm({
   childrenCount,
   labels,
   locale,
-  reservationReady
+  reservationReady,
+  todayIso
 }: ReservationBookingFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const guestNameRef = useRef<HTMLInputElement>(null);
@@ -83,7 +86,9 @@ export function ReservationBookingForm({
       guestName,
       guestPhone,
       labels,
-      locale
+      locale,
+      source: 'reservation',
+      todayIso
     });
 
     setErrors((current) => ({
@@ -122,7 +127,9 @@ export function ReservationBookingForm({
       guestName,
       guestPhone,
       labels,
-      locale
+      locale,
+      source: 'reservation',
+      todayIso
     });
 
     if (!result.ok) {
@@ -187,52 +194,22 @@ export function ReservationBookingForm({
           </p>
         ) : null}
 
-        <div className={styles.fieldGroup}>
-          <label className={styles.label} htmlFor="reservation-guest-name">
-            {labels.guestNameLabel}
-          </label>
-          <input
-            aria-describedby={guestNameError ? 'reservation-guest-name-error' : undefined}
-            aria-invalid={guestNameError !== undefined}
-            autoComplete="name"
-            className={[styles.input, guestNameError ? styles.invalidInput : ''].join(' ')}
-            id="reservation-guest-name"
-            maxLength={100}
-            name="guestName"
-            onBlur={() => handleBlur('guestName')}
-            onChange={handleNameChange}
-            placeholder={labels.guestNamePlaceholder}
-            ref={guestNameRef}
-            required
-            type="text"
-            value={guestName}
-          />
-          {guestNameError ? <p className={styles.fieldError} id="reservation-guest-name-error">{guestNameError}</p> : null}
-        </div>
-
-        <div className={styles.fieldGroup}>
-          <label className={styles.label} htmlFor="reservation-guest-phone">
-            {labels.guestPhoneLabel}
-          </label>
-          <input
-            aria-describedby={guestPhoneError ? 'reservation-guest-phone-error' : undefined}
-            aria-invalid={guestPhoneError !== undefined}
-            autoComplete="tel"
-            className={[styles.input, guestPhoneError ? styles.invalidInput : ''].join(' ')}
-            id="reservation-guest-phone"
-            inputMode="tel"
-            maxLength={32}
-            name="guestPhone"
-            onBlur={() => handleBlur('guestPhone')}
-            onChange={handlePhoneChange}
-            placeholder={labels.guestPhonePlaceholder}
-            ref={guestPhoneRef}
-            required
-            type="tel"
-            value={guestPhone}
-          />
-          {guestPhoneError ? <p className={styles.fieldError} id="reservation-guest-phone-error">{guestPhoneError}</p> : null}
-        </div>
+        <BookingContactFields
+          guestName={guestName}
+          guestNameError={guestNameError}
+          guestPhone={guestPhone}
+          guestPhoneError={guestPhoneError}
+          labels={labels}
+          nameInputId="reservation-guest-name"
+          nameRef={guestNameRef}
+          onNameBlur={() => handleBlur('guestName')}
+          onNameChange={handleNameChange}
+          onPhoneBlur={() => handleBlur('guestPhone')}
+          onPhoneChange={handlePhoneChange}
+          phoneInputId="reservation-guest-phone"
+          phoneRef={guestPhoneRef}
+          variant="reservation"
+        />
 
         <button className={styles.reviewButton} disabled={!reservationReady} type="submit">
           {labels.review}

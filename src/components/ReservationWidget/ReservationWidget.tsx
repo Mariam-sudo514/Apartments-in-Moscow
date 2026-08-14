@@ -679,6 +679,7 @@ export function ReservationWidget({
         labels={labels.booking}
         locale={locale}
         reservationReady={reservationReady}
+        todayIso={todayIso}
       />
     </div>
   );

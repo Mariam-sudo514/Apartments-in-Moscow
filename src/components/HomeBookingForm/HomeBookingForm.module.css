@@ -1,0 +1,286 @@
+.form {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 40px 50px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 5px 15px rgb(0 0 0 / 10%);
+}
+
+.title {
+  color: #191919;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.description {
+  margin: 20px 0 55px;
+  color: #191919;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+}
+
+.column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.column:first-child {
+  padding-right: 20px;
+}
+
+.column:first-child::after {
+  position: absolute;
+  top: 0;
+  right: -25px;
+  width: 1px;
+  height: 100%;
+  background-color: rgb(25 25 25 / 32%);
+  content: '';
+}
+
+.column:last-child {
+  padding-left: 20px;
+}
+
+.subtitle {
+  margin-bottom: 10px;
+  color: #191919;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.dates {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.dateField,
+.apartmentField {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.apartmentField {
+  margin-top: 15px;
+}
+
+.label {
+  color: rgb(25 25 25 / 60%);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 0;
+  padding: 12px;
+  border: 1px solid #cccccc;
+  border-radius: 14px;
+  background-color: #ffffff;
+  color: #191919;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 16px;
+}
+
+.input:focus-visible,
+.reviewButton:focus-visible,
+.errorSummaryList a:focus-visible {
+  outline: 3px solid rgb(255 152 157 / 45%);
+  outline-offset: 2px;
+}
+
+.invalidInput {
+  border-color: #b42318;
+}
+
+.select {
+  text-overflow: ellipsis;
+}
+
+.fieldError {
+  margin-top: 2px;
+  color: #b42318;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.errorSummary {
+  margin-bottom: 25px;
+  padding: 12px 14px;
+  border: 1px solid #b42318;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #7f1d1d;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.errorSummaryTitle {
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.errorSummaryList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.errorSummaryList a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.reviewButton {
+  display: block;
+  min-height: 48px;
+  margin: 35px auto 0;
+  padding: 14px 40px;
+  border: 0;
+  border-radius: 14px;
+  background: #191919;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.reviewButton:hover {
+  box-shadow: 0 8px 12px rgb(0 0 0 / 18%);
+  transform: translateY(-3px);
+}
+
+.reviewButton:disabled {
+  background: #777777;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.reviewButton:disabled:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.disabledHint,
+.reviewedMessage {
+  margin-top: 12px;
+  color: #666666;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.reviewedMessage {
+  padding: 12px 14px;
+  border: 1px solid #ff989d;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #333333;
+}
+
+@media (max-width: 1050px) {
+  .title {
+    font-size: 33px;
+  }
+}
+
+@media (max-width: 900px) {
+  .title {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .column:first-child {
+    padding-right: 0;
+  }
+
+  .column:first-child::after {
+    display: none;
+  }
+
+  .column:last-child {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .form {
+    padding: 25px 20px;
+  }
+
+  .dates {
+    flex-direction: column;
+  }
+
+  .title {
+    font-size: 27px;
+  }
+
+  .description {
+    margin-bottom: 35px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .title {
+    font-size: 27px;
+  }
+
+  .description,
+  .input,
+  .select {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 350px) {
+  .title {
+    font-size: 25px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 320px) {
+  .reviewButton {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reviewButton {
+    transition: none;
+  }
+}
