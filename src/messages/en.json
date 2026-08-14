@@ -64,7 +64,30 @@
     "siteTitle": "Moscow Apartments",
     "catalogTitle": "Apartments in Moscow",
     "catalogDescription": "A catalog of apartments and an A-frame house with localized descriptions, prices, and addresses.",
+    "contactsTitle": "Contacts | Moscow Apartments",
+    "contactsDescription": "Contact information and safe ways to reach Moscow Apartments.",
     "detailSuffix": "Moscow Apartments"
+  },
+  "contacts": {
+    "breadcrumbs": {
+      "ariaLabel": "Breadcrumbs",
+      "home": "Home",
+      "contacts": "Contacts"
+    },
+    "introTitle": "Live in comfort, just like at home",
+    "introText": "We create more than apartments — we create a space where everyone feels comfortable and at ease. Our service offers an individual approach to every guest, transparent rental terms, and full support throughout the stay. Booking an apartment is easy, and living in one is a pleasure: modern interiors, convenient locations, and attention to every detail make your time in Moscow truly enjoyable. We value your time and comfort, so every detail is considered — from a quick response from the manager to a home that is fully ready for your stay.",
+    "introClosing": "With us, Moscow feels like home.",
+    "sectionLabel": "Contact information",
+    "title": "Contacts",
+    "subtitle": "We are always available — write to us and we will help with the booking",
+    "department": "Booking department:",
+    "actions": {
+      "whatsapp": "Message on WhatsApp",
+      "telegram": "Message on Telegram",
+      "email": "Email the booking department"
+    },
+    "visualTitle": "Get in touch",
+    "visualText": "Choose a convenient way to contact us"
   },
   "home": {
     "hero": {
