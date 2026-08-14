@@ -1,0 +1,39 @@
+.info {
+  margin-top: 32px;
+  padding: 16px;
+  border: 1px solid #ff989d;
+  border-radius: 4px;
+  background-color: #ffe6e8;
+}
+
+.title {
+  margin-bottom: 12px;
+  color: #333333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.list {
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 8px;
+  color: #555555;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 14px;
+}
+
+.item:last-child {
+  margin-bottom: 0;
+}
+
+.item::before {
+  position: absolute;
+  left: 0;
+  color: #ff4149;
+  content: '✓';
+  font-weight: 700;
+}

@@ -64,6 +64,8 @@
     "siteTitle": "Moscow Apartments",
     "catalogTitle": "Apartments in Moscow",
     "catalogDescription": "A catalog of apartments and an A-frame house with localized descriptions, prices, and addresses.",
+    "reservationTitle": "Apartment booking in Moscow",
+    "reservationDescription": "Choose dates, guests, and an apartment to get a preliminary price calculation.",
     "contactsTitle": "Contacts | Moscow Apartments",
     "contactsDescription": "Contact information and safe ways to reach Moscow Apartments.",
     "detailSuffix": "Moscow Apartments"
@@ -88,6 +90,78 @@
     },
     "visualTitle": "Get in touch",
     "visualText": "Choose a convenient way to contact us"
+  },
+  "reservation": {
+    "breadcrumbs": {
+      "ariaLabel": "Breadcrumbs",
+      "home": "Home",
+      "reservation": "Reservation"
+    },
+    "title": "Choose dates and guests",
+    "subtitle": "Choose your booking dates and number of guests",
+    "datesLabel": "Check-in — Check-out",
+    "datesPlaceholder": "Check-in — Check-out",
+    "calendarLabel": "Booking calendar",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today",
+    "pastDate": "Past date unavailable",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "selectedRange": "Selected date range",
+    "selectCheckOut": "Choose a check-out date",
+    "guestsLabel": "Guests",
+    "adultsLabel": "Adults",
+    "childrenLabel": "Children under 18",
+    "countLabel": "Number",
+    "decreaseAdults": "Decrease number of adults",
+    "increaseAdults": "Increase number of adults",
+    "decreaseChildren": "Decrease number of children",
+    "increaseChildren": "Increase number of children",
+    "clear": "Clear",
+    "clearDates": "Clear dates",
+    "done": "Done",
+    "apartmentLabel": "Apartment address",
+    "apartmentPlaceholder": "Choose an address",
+    "apartmentOptionsLabel": "Apartment options",
+    "summaryTitle": "Booking information",
+    "summaryApartment": "Apartment",
+    "summaryCheckIn": "Check-in date",
+    "summaryCheckOut": "Check-out date",
+    "summaryNights": "Number of nights",
+    "summaryAdults": "Adults",
+    "summaryChildren": "Children",
+    "summaryTotal": "Total",
+    "summaryEmpty": "Choose dates and an apartment to see the preliminary price.",
+    "summaryUpdate": "Booking summary updated",
+    "emptyValue": "—",
+    "preliminary": "Preliminary",
+    "from": "From",
+    "instructionsTitle": "Instructions",
+    "instructions": [
+      "Choose check-in and check-out dates in the calendar",
+      "Specify the number of adults and children",
+      "Choose an apartment address",
+      "Review the booking information"
+    ],
+    "adults": {
+      "one": "adult",
+      "few": "adults",
+      "many": "adults",
+      "other": "adults"
+    },
+    "children": {
+      "one": "child",
+      "few": "children",
+      "many": "children",
+      "other": "children"
+    },
+    "nights": {
+      "one": "night",
+      "few": "nights",
+      "many": "nights",
+      "other": "nights"
+    }
   },
   "home": {
     "hero": {

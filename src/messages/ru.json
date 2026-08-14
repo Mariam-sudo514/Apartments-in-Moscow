@@ -64,6 +64,8 @@
     "siteTitle": "Moscow Apartments",
     "catalogTitle": "Квартиры в Москве",
     "catalogDescription": "Каталог апартаментов и A-frame дома с локализованными описаниями, ценами и адресами.",
+    "reservationTitle": "Бронирование апартаментов в Москве",
+    "reservationDescription": "Выберите даты, количество гостей и апартаменты, чтобы получить предварительный расчёт стоимости.",
     "contactsTitle": "Контакты | Moscow Apartments",
     "contactsDescription": "Контактная информация и безопасные способы связи с Moscow Apartments.",
     "detailSuffix": "Moscow Apartments"
@@ -88,6 +90,78 @@
     },
     "visualTitle": "Свяжитесь с нами",
     "visualText": "Выберите удобный способ связи"
+  },
+  "reservation": {
+    "breadcrumbs": {
+      "ariaLabel": "Хлебные крошки",
+      "home": "Главная",
+      "reservation": "Бронирование"
+    },
+    "title": "Выбор дат и гостей",
+    "subtitle": "Выберите даты бронирования и количество гостей",
+    "datesLabel": "Заезд — Выезд",
+    "datesPlaceholder": "Заезд — Выезд",
+    "calendarLabel": "Календарь бронирования",
+    "previousMonth": "Предыдущий месяц",
+    "nextMonth": "Следующий месяц",
+    "today": "Сегодня",
+    "pastDate": "Дата недоступна",
+    "checkIn": "Заезд",
+    "checkOut": "Выезд",
+    "selectedRange": "Выбранный диапазон",
+    "selectCheckOut": "Выберите дату выезда",
+    "guestsLabel": "Гости",
+    "adultsLabel": "Взрослые",
+    "childrenLabel": "Дети младше 18 лет",
+    "countLabel": "Количество",
+    "decreaseAdults": "Уменьшить количество взрослых",
+    "increaseAdults": "Увеличить количество взрослых",
+    "decreaseChildren": "Уменьшить количество детей",
+    "increaseChildren": "Увеличить количество детей",
+    "clear": "Очистить",
+    "clearDates": "Очистить даты",
+    "done": "Готово",
+    "apartmentLabel": "Адрес квартиры",
+    "apartmentPlaceholder": "Выберите адрес",
+    "apartmentOptionsLabel": "Варианты апартаментов",
+    "summaryTitle": "Информация о бронировании",
+    "summaryApartment": "Квартира",
+    "summaryCheckIn": "Дата заезда",
+    "summaryCheckOut": "Дата выезда",
+    "summaryNights": "Количество ночей",
+    "summaryAdults": "Взрослые",
+    "summaryChildren": "Дети",
+    "summaryTotal": "Итого",
+    "summaryEmpty": "Выберите даты и квартиру, чтобы увидеть предварительную стоимость.",
+    "summaryUpdate": "Сводка бронирования обновлена",
+    "emptyValue": "—",
+    "preliminary": "Предварительно",
+    "from": "От",
+    "instructionsTitle": "Инструкция",
+    "instructions": [
+      "Выберите даты заезда и выезда в календаре",
+      "Укажите количество взрослых и детей",
+      "Укажите адрес квартиры",
+      "Проверьте информацию о бронировании"
+    ],
+    "adults": {
+      "one": "взрослый",
+      "few": "взрослых",
+      "many": "взрослых",
+      "other": "взрослых"
+    },
+    "children": {
+      "one": "ребёнок",
+      "few": "ребёнка",
+      "many": "детей",
+      "other": "детей"
+    },
+    "nights": {
+      "one": "ночь",
+      "few": "ночи",
+      "many": "ночей",
+      "other": "ночей"
+    }
   },
   "home": {
     "hero": {

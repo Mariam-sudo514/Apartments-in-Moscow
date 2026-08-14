@@ -1,0 +1,1 @@
+export {ReservationPageContent} from './ReservationPageContent';
