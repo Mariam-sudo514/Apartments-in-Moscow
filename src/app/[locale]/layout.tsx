@@ -7,6 +7,7 @@ import {notFound} from 'next/navigation';
 
 import {Footer} from '@/components/Footer';
 import {Header} from '@/components/Header';
+import {getSiteUrl} from '@/config/site';
 import {routing} from '@/i18n/routing';
 import {isLocale} from '@/types/locale';
 
@@ -47,6 +48,7 @@ const roboto = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: getSiteUrl(),
   title: 'Moscow Apartments',
   icons: {
     icon: [
@@ -56,7 +58,6 @@ export const metadata: Metadata = {
         sizes: '96x96',
         type: 'image/png'
       },
-      {url: '/icons/favicon.ico'}
     ],
     apple: '/icons/apple-touch-icon.png'
   },

@@ -3,6 +3,7 @@ import {getTranslations} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 
 import {Breadcrumbs} from '@/components/Breadcrumbs';
+import {createPageMetadata} from '@/lib/seo/metadata';
 import {ReservationPageContent} from '@/components/ReservationPageContent';
 import {isLocale, type Locale} from '@/types/locale';
 
@@ -25,10 +26,12 @@ export async function generateMetadata({params}: ReservationPageProps): Promise<
   const locale = getRouteLocale(rawLocale);
   const t = await getTranslations({locale, namespace: 'metadata'});
 
-  return {
+  return createPageMetadata({
     description: t('reservationDescription'),
+    locale,
+    path: '/reservation',
     title: t('reservationTitle')
-  };
+  });
 }
 
 export default async function ReservationPage({params}: ReservationPageProps) {

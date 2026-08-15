@@ -4,6 +4,7 @@ import {notFound} from 'next/navigation';
 
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ContactsPageContent} from '@/components/ContactsPageContent';
+import {createPageMetadata} from '@/lib/seo/metadata';
 import {isLocale, type Locale} from '@/types/locale';
 
 type ContactsPageProps = {
@@ -23,10 +24,12 @@ export async function generateMetadata({params}: ContactsPageProps): Promise<Met
   const locale = getRouteLocale(rawLocale);
   const t = await getTranslations({locale, namespace: 'metadata'});
 
-  return {
-    title: t('contactsTitle'),
-    description: t('contactsDescription')
-  };
+  return createPageMetadata({
+    description: t('contactsDescription'),
+    locale,
+    path: '/contacts',
+    title: t('contactsTitle')
+  });
 }
 
 export default async function ContactsPage({params}: ContactsPageProps) {

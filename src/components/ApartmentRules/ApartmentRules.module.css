@@ -66,12 +66,14 @@
   }
 }
 
-@media (max-width: 310px) {
+@media (max-width: 330px) {
   .timings {
     flex-direction: column;
     gap: 20px;
   }
+}
 
+@media (max-width: 310px) {
   .title {
     font-size: 19px;
   }

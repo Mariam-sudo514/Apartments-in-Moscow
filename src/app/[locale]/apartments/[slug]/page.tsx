@@ -9,6 +9,7 @@ import {ApartmentMap} from '@/components/ApartmentMap';
 import {ApartmentRules} from '@/components/ApartmentRules';
 import {ApartmentSummary} from '@/components/ApartmentSummary';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
+import {createPageMetadata} from '@/lib/seo/metadata';
 import {
   getApartmentBySlug,
   getApartmentSlugs,
@@ -50,10 +51,12 @@ export async function generateMetadata({params}: ApartmentDetailPageProps): Prom
   const localized = getLocalizedApartment(apartment, locale);
   const t = await getTranslations({locale, namespace: 'metadata'});
 
-  return {
-    title: `${localized.detail.title} | ${t('detailSuffix')}`,
-    description: localized.detail.description
-  };
+  return createPageMetadata({
+    description: localized.detail.description,
+    locale,
+    path: `/apartments/${slug}`,
+    title: `${localized.detail.title} | ${t('detailSuffix')}`
+  });
 }
 
 export default async function ApartmentDetailPage({

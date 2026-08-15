@@ -9,6 +9,7 @@ import {
   getLocalizedApartment
 } from '@/data/apartments';
 import {isLocale, type Locale} from '@/types/locale';
+import {createPageMetadata} from '@/lib/seo/metadata';
 
 type ApartmentsPageProps = {
   readonly params: Promise<{locale: string}>;
@@ -27,10 +28,12 @@ export async function generateMetadata({params}: ApartmentsPageProps): Promise<M
   const locale = getRouteLocale(rawLocale);
   const t = await getTranslations({locale, namespace: 'metadata'});
 
-  return {
-    title: t('catalogTitle'),
-    description: t('catalogDescription')
-  };
+  return createPageMetadata({
+    description: t('catalogDescription'),
+    locale,
+    path: '/apartments',
+    title: t('catalogTitle')
+  });
 }
 
 export default async function ApartmentsPage({params}: ApartmentsPageProps) {
