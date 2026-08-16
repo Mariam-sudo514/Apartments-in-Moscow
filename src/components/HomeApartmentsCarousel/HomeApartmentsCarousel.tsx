@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import {useRef, useSyncExternalStore} from 'react';
+import {useRef, useState, useSyncExternalStore} from 'react';
 import {FiChevronLeft, FiChevronRight} from 'react-icons/fi';
 import {A11y, Autoplay, Keyboard, Navigation, Pagination} from 'swiper/modules';
 import type {Swiper as SwiperClass} from 'swiper';
@@ -33,9 +33,11 @@ export type HomeApartmentsCarouselLabels = {
   readonly from: string;
   readonly moreDetails: string;
   readonly next: string;
+  readonly pause: string;
   readonly paginationBullet: string;
   readonly perDay: string;
   readonly previous: string;
+  readonly resume: string;
   readonly slideLabelOf: string;
   readonly slideLabelPrefix: string;
 };
@@ -81,6 +83,7 @@ export function HomeApartmentsCarousel({
   slides
 }: HomeApartmentsCarouselProps) {
   const swiperRef = useRef<SwiperClass | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const reducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
     getReducedMotionSnapshot,
@@ -94,8 +97,16 @@ export function HomeApartmentsCarousel({
   return (
     <div
       className={styles.carouselFrame}
-      onMouseEnter={() => swiperRef.current?.autoplay.pause()}
-      onMouseLeave={() => swiperRef.current?.autoplay.resume()}
+      onMouseEnter={() => {
+        if (!reducedMotion && !isPaused) {
+          swiperRef.current?.autoplay.pause();
+        }
+      }}
+      onMouseLeave={() => {
+        if (!reducedMotion && !isPaused) {
+          swiperRef.current?.autoplay.resume();
+        }
+      }}
     >
       <Swiper
         a11y={{
@@ -134,6 +145,7 @@ export function HomeApartmentsCarousel({
         spaceBetween={30}
         onSwiper={(swiper) => {
           swiperRef.current = swiper;
+          setIsPaused(false);
         }}
       >
         {slides.map((slide) => (
@@ -191,6 +203,24 @@ export function HomeApartmentsCarousel({
       >
         <FiChevronRight aria-hidden="true" focusable="false" />
       </button>
+      {!reducedMotion && (
+        <button
+          aria-label={isPaused ? labels.resume : labels.pause}
+          className={styles.motionButton}
+          onClick={() => {
+            if (isPaused) {
+              swiperRef.current?.autoplay.resume();
+              setIsPaused(false);
+            } else {
+              swiperRef.current?.autoplay.pause();
+              setIsPaused(true);
+            }
+          }}
+          type="button"
+        >
+          {isPaused ? labels.resume : labels.pause}
+        </button>
+      )}
     </div>
   );
 }

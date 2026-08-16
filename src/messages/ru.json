@@ -11,7 +11,11 @@
   "mobileMenu": {
     "open": "Открыть меню",
     "close": "Закрыть меню",
+    "dialogLabel": "Мобильная навигация",
     "overlay": "Закрыть меню навигации"
+  },
+  "accessibility": {
+    "skipToContent": "Перейти к основному содержимому"
   },
   "footer": {
     "ariaLabel": "Навигация в подвале сайта",
@@ -235,9 +239,11 @@
       "title": "Наши квартиры",
       "carouselLabel": "Карусель апартаментов",
       "carouselRole": "карусель",
+      "pause": "Приостановить карусель",
       "previous": "Предыдущая квартира",
       "next": "Следующая квартира",
       "paginationBullet": "Перейти к квартире",
+      "resume": "Возобновить карусель",
       "slideLabelPrefix": "Квартира",
       "slideLabelOf": "из"
     },

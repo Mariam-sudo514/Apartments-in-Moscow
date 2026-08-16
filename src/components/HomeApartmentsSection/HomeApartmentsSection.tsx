@@ -49,9 +49,11 @@ export async function HomeApartmentsSection({locale}: HomeApartmentsSectionProps
           from: apartmentT('from'),
           moreDetails: apartmentT('moreDetails'),
           next: homeT('next'),
+          pause: homeT('pause'),
           paginationBullet: homeT('paginationBullet'),
           perDay: apartmentT('perDay'),
           previous: homeT('previous'),
+          resume: homeT('resume'),
           slideLabelOf: homeT('slideLabelOf'),
           slideLabelPrefix: homeT('slideLabelPrefix')
         }}

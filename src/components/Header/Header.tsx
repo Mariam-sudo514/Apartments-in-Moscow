@@ -38,6 +38,7 @@ export async function Header() {
 
           <MobileNavigation
             closeLabel={t('mobileMenu.close')}
+            dialogLabel={t('mobileMenu.dialogLabel')}
             menuLabel={t('mobileMenu.open')}
             overlayLabel={t('mobileMenu.overlay')}
           >

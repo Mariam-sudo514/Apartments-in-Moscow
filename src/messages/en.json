@@ -11,7 +11,11 @@
   "mobileMenu": {
     "open": "Open menu",
     "close": "Close menu",
+    "dialogLabel": "Mobile navigation",
     "overlay": "Close navigation menu"
+  },
+  "accessibility": {
+    "skipToContent": "Skip to main content"
   },
   "footer": {
     "ariaLabel": "Footer navigation",
@@ -235,9 +239,11 @@
       "title": "Our apartments",
       "carouselLabel": "Apartment carousel",
       "carouselRole": "carousel",
+      "pause": "Pause carousel",
       "previous": "Previous apartment",
       "next": "Next apartment",
       "paginationBullet": "Go to apartment",
+      "resume": "Resume carousel",
       "slideLabelPrefix": "Apartment",
       "slideLabelOf": "of"
     },

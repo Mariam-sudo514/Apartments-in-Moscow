@@ -122,3 +122,7 @@ Every RU and EN indexable route now has localized title and description metadata
 ## Future work
 
 The current local anti-abuse layer includes exact-origin and Fetch Metadata checks, the required request header, an 8 KiB body limit, a honeypot, and an in-memory rate limiter. Future production work requires a final CAPTCHA or Turnstile decision, persistent or distributed rate limiting, production SMTP delivery and secret management, booking persistence and idempotency, monitoring, and the final SEO, accessibility, and regression review.
+
+## Quality audit
+
+Stage 9B completed a local production-build quality audit across the RU/EN core routes, legacy redirects, SEO endpoints, booking API, Docker Compose, and Mailpit delivery. The audit added a keyboard-accessible skip link, mobile drawer focus management, an explicit carousel pause/resume control, defensive response headers, and a narrow mobile overflow fix for apartment detail rules. Local checks passed with no dependency changes; Lighthouse was not run because it was not installed and no new package was added. This audit is not a WCAG certification, penetration test, field Core Web Vitals report, or production deployment approval.

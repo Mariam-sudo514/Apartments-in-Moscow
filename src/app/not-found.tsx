@@ -8,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function NotFound() {
-  return <h1>Page not found</h1>;
+  return (
+    <main id="main-content">
+      <h1>Page not found</h1>
+    </main>
+  );
 }
