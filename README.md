@@ -1,5 +1,7 @@
 # Moscow Apartments
 
+[![CI](https://github.com/Mariam-sudo514/Apartments-in-Moscow/actions/workflows/ci.yml/badge.svg)](https://github.com/Mariam-sudo514/Apartments-in-Moscow/actions/workflows/ci.yml)
+
 Moscow Apartments is a Next.js foundation for the staged migration of a legacy apartment-rental website.
 
 ## Migration status
@@ -47,6 +49,16 @@ npm run typecheck
 npm run build
 npm run verify
 ```
+
+## Testing
+
+```bash
+npm test
+npm run test:coverage
+npm run verify
+```
+
+The deterministic Node test suite covers typed apartment data and manifests, calendar and Moscow-date arithmetic, client and server booking validation, trusted quotes, request security boundaries, local mail configuration and plain-text rendering, legacy redirects, and sitemap/robots invariants. Browser end-to-end behavior remains a separate manual Stage 9B check. The CI workflow is configured but no GitHub Actions result is claimed until it has been run on GitHub.
 
 ## Scaffold routes
 
