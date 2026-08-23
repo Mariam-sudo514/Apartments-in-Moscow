@@ -1,23 +1,27 @@
-import styles from './ApartmentAmenities.module.css';
+import styles from '@/components/ApartmentDescription/ApartmentDescription.module.css';
 
 type ApartmentAmenitiesProps = {
-  readonly amenities: readonly string[];
+  readonly columns: readonly (readonly string[])[];
   readonly title: string;
 };
 
-export function ApartmentAmenities({amenities, title}: ApartmentAmenitiesProps) {
-  if (amenities.length === 0) {
+export function ApartmentAmenities({columns, title}: ApartmentAmenitiesProps) {
+  if (columns.length === 0) {
     return null;
   }
 
   return (
-    <section className={styles.section}>
-      <h2 className={styles.title}>{title}</h2>
-      <ul className={styles.list}>
-        {amenities.map((amenity) => (
-          <li key={amenity}>{amenity}</li>
+    <div className={styles.block}>
+      <h1 className={`${styles.title} ${styles.facilities}`}>{title}</h1>
+      <div className={styles.rulesList}>
+        {columns.map((column, columnIndex) => (
+          <ul className={styles.list} key={`amenity-column-${columnIndex}`}>
+            {column.map((amenity) => (
+              <li key={amenity}>{amenity}</li>
+            ))}
+          </ul>
         ))}
-      </ul>
-    </section>
+      </div>
+    </div>
   );
 }

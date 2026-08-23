@@ -57,6 +57,8 @@
       "positionOf": "of"
     },
     "detail": {
+      "from": "From",
+      "perDay": "Per day",
       "rules": "House rules",
       "checkIn": "Check-in",
       "checkOut": "Check-out",
@@ -87,15 +89,14 @@
     "introClosing": "With us, Moscow feels like home.",
     "sectionLabel": "Contact information",
     "title": "Contacts",
-    "subtitle": "We are always available — write to us and we will help with the booking",
+    "subtitle": "We are always available — write or call, we will help with the booking",
     "department": "Booking department:",
     "actions": {
       "whatsapp": "Message on WhatsApp",
-      "telegram": "Message on Telegram",
-      "email": "Email the booking department"
+      "telegram": "Message on Telegram"
     },
-    "visualTitle": "Get in touch",
-    "visualText": "Choose a convenient way to contact us"
+    "qrAlt": "Telegram QR code",
+    "qrCaption": "Scan to message on Telegram"
   },
   "reservation": {
     "breadcrumbs": {
@@ -249,19 +250,24 @@
     },
     "booking": {
       "title": "Apartment booking",
-      "description": "Complete the details for review. Sending is a separate action after the review.",
+      "description": "Fill out the form to book an apartment",
       "contactTitle": "Contact information",
       "bookingDetailsTitle": "Booking details",
-      "guestNameLabel": "Guest name",
-      "guestNamePlaceholder": "Ivanov Ivan Ivanovich",
-      "guestPhoneLabel": "Phone number",
-      "guestPhonePlaceholder": "+1 900 000 0000",
+      "guestNameLabel": "Enter your full name",
+      "guestNamePlaceholder": "Иванов Иван Иванович",
+      "guestPhoneLabel": "Enter your phone number",
+      "guestPhonePlaceholder": "+7 900 000 00 00",
       "checkInLabel": "Check-in date",
       "checkOutLabel": "Check-out date",
-      "apartmentLabel": "Apartment address",
+      "apartmentLabel": "Select the apartment address",
       "apartmentPlaceholder": "Choose an address",
-      "review": "Review details",
-      "reviewDisabledHint": "Preparing the Moscow date for the calendar.",
+      "captchaAlt": "captcha",
+      "captchaInvalid": "Enter the characters shown in the CAPTCHA image.",
+      "captchaLabel": "CAPTCHA",
+      "captchaLoadFailed": "CAPTCHA could not be loaded. Refresh it and try again.",
+      "captchaPlaceholder": "Введите капчу",
+      "captchaRefresh": "Refresh CAPTCHA",
+      "captchaRequired": "Enter the verification code.",
       "errorSummaryTitle": "Check the highlighted fields",
       "guestNameRequired": "Enter the guest name.",
       "guestNameTooShort": "The name must contain at least 2 characters.",
@@ -276,12 +282,11 @@
       "checkOutRequired": "Choose a check-out date.",
       "checkOutAfterCheckIn": "The check-out date must be later than check-in.",
       "apartmentRequired": "Choose an apartment.",
-      "todayInitializing": "The calendar is getting ready. Try the review again in a moment.",
-      "reservationIncomplete": "Choose valid dates and an apartment before reviewing details.",
-      "reviewedMessage": "The details passed local validation. Check them and send the request with the separate button.",
-      "sendRequest": "Send request",
+      "todayInitializing": "The calendar is getting ready. Try again in a moment.",
+      "reservationIncomplete": "Choose valid dates and an apartment before sending the request.",
+      "sendRequest": "Submit the application",
       "sending": "Sending request…",
-      "successMessage": "The request was sent to the local test inbox.",
+      "successMessage": "The application was sent to the local test inbox.",
       "networkFailure": "The server could not be reached. Check the connection and try again.",
       "invalidResponse": "The server returned an invalid response. Try again.",
       "requestInvalid": "The request could not be checked. Review the details and try again.",
@@ -293,7 +298,7 @@
       "serverMisconfigured": "Local delivery is not configured right now.",
       "deliveryNotConfigured": "Local test delivery is not configured right now.",
       "deliveryFailed": "The request could not be sent to the local test inbox.",
-      "retry": "Retry sending"
+      "retry": "Try again"
     },
     "contacts": {
       "title": "Contacts",
@@ -301,12 +306,8 @@
       "bookingDepartment": "Booking department:",
       "actions": {
         "whatsapp": "Message on WhatsApp",
-        "telegram": "Message on Telegram",
-        "email": "Email the booking department"
-      },
-      "panelTitle": "Get in touch",
-      "panelText": "Choose a convenient way to contact us",
-      "contactsLink": "Open contacts"
+        "telegram": "Message on Telegram"
+      }
     }
   },
   "notFound": "Page not found"

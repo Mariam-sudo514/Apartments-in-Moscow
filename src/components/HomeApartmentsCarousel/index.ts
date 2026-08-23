@@ -1,5 +1,4 @@
 export {
   HomeApartmentsCarousel,
-  type HomeApartmentSlide,
-  type HomeApartmentsCarouselLabels
+  type HomeApartmentSlide
 } from './HomeApartmentsCarousel';

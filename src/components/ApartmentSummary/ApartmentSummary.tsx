@@ -14,13 +14,8 @@ type ApartmentSummaryProps = {
   readonly labels: ApartmentSummaryLabels;
 };
 
-function formatPrice(price: ApartmentPrice, locale: LocalizedApartmentView['locale']): string {
-  return new Intl.NumberFormat(locale, {
-    currency: price.currency,
-    currencyDisplay: 'narrowSymbol',
-    maximumFractionDigits: 0,
-    style: 'currency'
-  }).format(price.amount);
+function formatPriceAmount(amount: ApartmentPrice['amount']): string {
+  return Math.trunc(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
 export function ApartmentSummary({apartment, labels}: ApartmentSummaryProps) {
@@ -31,7 +26,7 @@ export function ApartmentSummary({apartment, labels}: ApartmentSummaryProps) {
       <p className={styles.type}>{apartment.catalog.type}</p>
       <p className={styles.price}>
         {price.mode === 'from' ? `${labels.from} ` : ''}
-        {formatPrice(price, apartment.locale)}{' '}
+        {formatPriceAmount(price.amount)}{' ₽ '}
         <span className={styles.separator}>/</span>{' '}
         <span className={styles.perDay}>{labels.perDay}</span>
       </p>

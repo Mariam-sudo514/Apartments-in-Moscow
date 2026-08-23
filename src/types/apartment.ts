@@ -20,16 +20,44 @@ export type ApartmentGalleryImage = ApartmentAsset & {
   readonly order: number;
 };
 
-export type ApartmentSection = {
+export type ApartmentDescriptionElement =
+  | {
+      readonly type: 'heading';
+      readonly level: 1 | 2;
+      readonly text: LocalizedText;
+    }
+  | {
+      readonly type: 'paragraph';
+      readonly text: LocalizedText;
+      readonly variant?: 'default' | 'infrastructure' | 'indented';
+    }
+  | {
+      readonly type: 'list';
+      readonly items: readonly LocalizedText[];
+    };
+
+export type ApartmentRuleTiming = {
+  readonly icon: 'checkIn' | 'checkOut';
+  readonly text: LocalizedText;
+};
+
+export type ApartmentRulesBlock = {
   readonly title: LocalizedText;
-  readonly paragraphs: readonly LocalizedText[];
-  readonly items: readonly LocalizedText[];
+  readonly timings: readonly ApartmentRuleTiming[];
+  readonly elements: readonly ApartmentDescriptionElement[];
+};
+
+export type ApartmentMapLink = {
+  readonly provider: 'yandex' | 'google' | 'apple';
+  readonly href: string;
+  readonly label: LocalizedText;
 };
 
 export type ApartmentMapData = {
   readonly provider: 'yandex';
   readonly embedUrl: string;
   readonly title: LocalizedText;
+  readonly links: readonly ApartmentMapLink[];
 };
 
 export type ApartmentCatalogData = {
@@ -45,11 +73,9 @@ export type ApartmentDetailData = {
   readonly title: LocalizedText;
   readonly address: LocalizedText;
   readonly description: LocalizedText;
-  readonly sections: readonly ApartmentSection[];
-  readonly rules: readonly LocalizedText[];
-  readonly checkIn: LocalizedText;
-  readonly checkOut: LocalizedText;
-  readonly amenities: readonly LocalizedText[];
+  readonly descriptionElements: readonly ApartmentDescriptionElement[];
+  readonly rulesBlock: ApartmentRulesBlock;
+  readonly amenityColumns: readonly (readonly LocalizedText[])[];
   readonly price: ApartmentPrice;
   readonly gallery: readonly ApartmentGalleryImage[];
   readonly map: ApartmentMapData;
@@ -80,10 +106,29 @@ export type LocalizedApartmentGalleryImage = Omit<ApartmentGalleryImage, 'alt'> 
   readonly alt: string;
 };
 
-export type LocalizedApartmentSection = {
+export type LocalizedApartmentDescriptionElement =
+  | {
+      readonly type: 'heading';
+      readonly level: 1 | 2;
+      readonly text: string;
+    }
+  | {
+      readonly type: 'paragraph';
+      readonly text: string;
+      readonly variant?: 'default' | 'infrastructure' | 'indented';
+    }
+  | {
+      readonly type: 'list';
+      readonly items: readonly string[];
+    };
+
+export type LocalizedApartmentRulesBlock = {
   readonly title: string;
-  readonly paragraphs: readonly string[];
-  readonly items: readonly string[];
+  readonly timings: readonly {
+    readonly icon: ApartmentRuleTiming['icon'];
+    readonly text: string;
+  }[];
+  readonly elements: readonly LocalizedApartmentDescriptionElement[];
 };
 
 export type LocalizedApartmentView = {
@@ -103,17 +148,20 @@ export type LocalizedApartmentView = {
     readonly title: string;
     readonly address: string;
     readonly description: string;
-    readonly sections: readonly LocalizedApartmentSection[];
-    readonly rules: readonly string[];
-    readonly checkIn: string;
-    readonly checkOut: string;
-    readonly amenities: readonly string[];
+    readonly descriptionElements: readonly LocalizedApartmentDescriptionElement[];
+    readonly rulesBlock: LocalizedApartmentRulesBlock;
+    readonly amenityColumns: readonly (readonly string[])[];
     readonly price: ApartmentPrice;
     readonly gallery: readonly LocalizedApartmentGalleryImage[];
     readonly map: {
       readonly provider: ApartmentMapData['provider'];
       readonly embedUrl: string;
       readonly title: string;
+      readonly links: readonly {
+        readonly provider: ApartmentMapLink['provider'];
+        readonly href: string;
+        readonly label: string;
+      }[];
     };
   };
 };

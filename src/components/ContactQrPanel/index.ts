@@ -1,0 +1,1 @@
+export {ContactQrPanel} from './ContactQrPanel';

@@ -1,6 +1,8 @@
 import { locales, type Locale } from '@/types/locale';
 import type {
+  ApartmentDescriptionElement,
   ApartmentRecord,
+  LocalizedApartmentDescriptionElement,
   LocalizedApartmentView,
   LocalizedText,
 } from '@/types/apartment';
@@ -39,6 +41,32 @@ const expectedGalleryCounts: Readonly<Record<string, number>> = {
 const expectedCatalogCovers = Array.from({ length: 12 }, (_, index) => `img/main/${index + 1}.png`);
 
 const pick = (value: LocalizedText, locale: Locale): string => value[locale];
+
+function localizeDescriptionElement(
+  element: ApartmentDescriptionElement,
+  locale: Locale,
+): LocalizedApartmentDescriptionElement {
+  if (element.type === 'list') {
+    return {
+      items: element.items.map((item) => pick(item, locale)),
+      type: 'list',
+    };
+  }
+
+  if (element.type === 'heading') {
+    return {
+      level: element.level,
+      text: pick(element.text, locale),
+      type: 'heading',
+    };
+  }
+
+  return {
+    text: pick(element.text, locale),
+    type: 'paragraph',
+    ...(element.variant === undefined ? {} : {variant: element.variant}),
+  };
+}
 
 export function getAllApartments(): typeof apartments {
   return apartments;
@@ -85,15 +113,22 @@ export function getLocalizedApartment(
       title: pick(apartment.detail.title, locale),
       address: pick(apartment.detail.address, locale),
       description: pick(apartment.detail.description, locale),
-      sections: apartment.detail.sections.map((item) => ({
-        title: pick(item.title, locale),
-        paragraphs: item.paragraphs.map((paragraph) => pick(paragraph, locale)),
-        items: item.items.map((entry) => pick(entry, locale)),
-      })),
-      rules: apartment.detail.rules.map((rule) => pick(rule, locale)),
-      checkIn: pick(apartment.detail.checkIn, locale),
-      checkOut: pick(apartment.detail.checkOut, locale),
-      amenities: apartment.detail.amenities.map((amenity) => pick(amenity, locale)),
+      descriptionElements: apartment.detail.descriptionElements.map((element) =>
+        localizeDescriptionElement(element, locale),
+      ),
+      rulesBlock: {
+        elements: apartment.detail.rulesBlock.elements.map((element) =>
+          localizeDescriptionElement(element, locale),
+        ),
+        title: pick(apartment.detail.rulesBlock.title, locale),
+        timings: apartment.detail.rulesBlock.timings.map((timing) => ({
+          icon: timing.icon,
+          text: pick(timing.text, locale),
+        })),
+      },
+      amenityColumns: apartment.detail.amenityColumns.map((column) =>
+        column.map((amenity) => pick(amenity, locale)),
+      ),
       price: apartment.detail.price,
       gallery: apartment.detail.gallery.map((image) => ({
         order: image.order,
@@ -105,6 +140,11 @@ export function getLocalizedApartment(
         provider: apartment.detail.map.provider,
         embedUrl: apartment.detail.map.embedUrl,
         title: pick(apartment.detail.map.title, locale),
+        links: apartment.detail.map.links.map((link) => ({
+          provider: link.provider,
+          href: link.href,
+          label: pick(link.label, locale),
+        })),
       },
     },
   };
@@ -163,28 +203,40 @@ function addRecordLocalizedTextErrors(record: ApartmentRecord, errors: string[])
     ['detail.title', record.detail.title],
     ['detail.address', record.detail.address],
     ['detail.description', record.detail.description],
-    ['detail.checkIn', record.detail.checkIn],
-    ['detail.checkOut', record.detail.checkOut],
     ['detail.map.title', record.detail.map.title],
   ];
 
   for (const [label, value] of localizedFields) {
     addLocalizedTextErrors(value, `${record.slug}.${label}`, errors);
   }
-  for (const [index, value] of record.detail.rules.entries()) {
-    addLocalizedTextErrors(value, `${record.slug}.detail.rules[${index}]`, errors);
-  }
-  for (const [index, value] of record.detail.amenities.entries()) {
-    addLocalizedTextErrors(value, `${record.slug}.detail.amenities[${index}]`, errors);
-  }
-  for (const [index, value] of record.detail.sections.entries()) {
-    addLocalizedTextErrors(value.title, `${record.slug}.detail.sections[${index}].title`, errors);
-    for (const [paragraphIndex, paragraph] of value.paragraphs.entries()) {
-      addLocalizedTextErrors(paragraph, `${record.slug}.detail.sections[${index}].paragraphs[${paragraphIndex}]`, errors);
+  const addElementErrors = (
+    elements: readonly ApartmentDescriptionElement[],
+    label: string,
+  ): void => {
+    for (const [index, element] of elements.entries()) {
+      if (element.type === 'list') {
+        for (const [itemIndex, item] of element.items.entries()) {
+          addLocalizedTextErrors(item, `${label}[${index}].items[${itemIndex}]`, errors);
+        }
+      } else {
+        addLocalizedTextErrors(element.text, `${label}[${index}].text`, errors);
+      }
     }
-    for (const [itemIndex, item] of value.items.entries()) {
-      addLocalizedTextErrors(item, `${record.slug}.detail.sections[${index}].items[${itemIndex}]`, errors);
+  };
+
+  addElementErrors(record.detail.descriptionElements, `${record.slug}.detail.descriptionElements`);
+  addLocalizedTextErrors(record.detail.rulesBlock.title, `${record.slug}.detail.rulesBlock.title`, errors);
+  for (const [index, timing] of record.detail.rulesBlock.timings.entries()) {
+    addLocalizedTextErrors(timing.text, `${record.slug}.detail.rulesBlock.timings[${index}].text`, errors);
+  }
+  addElementErrors(record.detail.rulesBlock.elements, `${record.slug}.detail.rulesBlock.elements`);
+  for (const [columnIndex, column] of record.detail.amenityColumns.entries()) {
+    for (const [itemIndex, item] of column.entries()) {
+      addLocalizedTextErrors(item, `${record.slug}.detail.amenityColumns[${columnIndex}][${itemIndex}]`, errors);
     }
+  }
+  for (const [index, link] of record.detail.map.links.entries()) {
+    addLocalizedTextErrors(link.label, `${record.slug}.detail.map.links[${index}].label`, errors);
   }
   for (const [index, image] of record.detail.gallery.entries()) {
     addLocalizedTextErrors(image.alt, `${record.slug}.detail.gallery[${index}].alt`, errors);

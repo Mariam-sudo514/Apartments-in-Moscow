@@ -2,11 +2,11 @@ import {getTranslations} from 'next-intl/server';
 
 import {Container} from '@/components/Container';
 import {LanguageSwitcher} from '@/components/LanguageSwitcher';
-import {Navigation, type NavigationItem} from '@/components/Navigation';
 import {SiteLogo} from '@/components/SiteLogo';
-import {SocialLinks} from '@/components/SocialLinks';
+import {Link} from '@/i18n/navigation';
 import type {Locale} from '@/types/locale';
 
+import {FooterSocialLinks} from './FooterSocialLinks';
 import styles from './Footer.module.css';
 
 type FooterProps = {
@@ -15,11 +15,6 @@ type FooterProps = {
 
 export async function Footer({locale}: FooterProps) {
   const t = await getTranslations();
-  const items: readonly NavigationItem[] = [
-    {href: '/', label: t('navigation.home')},
-    {href: '/apartments', label: t('navigation.apartments')},
-    {href: '/contacts', label: t('navigation.contacts')}
-  ];
   const socialLabels = {
     whatsapp: t('social.whatsapp'),
     telegram: t('social.telegram'),
@@ -33,11 +28,25 @@ export async function Footer({locale}: FooterProps) {
           <SiteLogo alt={t('brand.logoAlt')} variant="footer" />
 
           <div className={styles.navigationWrap}>
-            <Navigation
-              ariaLabel={t('footer.ariaLabel')}
-              items={items}
-              variant="footer"
-            />
+            <nav aria-label={t('footer.ariaLabel')} className={styles.footerNavigation}>
+              <ul className={styles.footerNavigationList}>
+                <li>
+                  <Link className={styles.footerNavigationLink} href="/">
+                    {t('navigation.home')}
+                  </Link>
+                </li>
+                <li>
+                  <Link className={styles.footerNavigationLink} href="/apartments">
+                    {t('navigation.apartments')}
+                  </Link>
+                </li>
+                <li>
+                  <Link className={styles.footerNavigationLink} href="/contacts">
+                    {t('navigation.contacts')}
+                  </Link>
+                </li>
+              </ul>
+            </nav>
             <LanguageSwitcher
               ariaLabel={t('languageSwitcher.ariaLabel')}
               enLabel={t('languageSwitcher.en')}
@@ -47,7 +56,7 @@ export async function Footer({locale}: FooterProps) {
           </div>
 
           <div className={styles.socialBlock}>
-            <SocialLinks labels={socialLabels} variant="footer" />
+            <FooterSocialLinks labels={socialLabels} />
           </div>
         </div>
 

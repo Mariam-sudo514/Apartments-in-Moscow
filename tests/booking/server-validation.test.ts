@@ -12,6 +12,8 @@ function homePayload(overrides: Record<string, unknown> = {}): Record<string, un
     checkOut: '2026-08-22',
     guestName: 'Maria Ivanova',
     guestPhone: '+7 000 000 00 00',
+    captchaAnswer: 'AB234',
+    captchaChallengeId: 'challenge-id',
     locale: 'en',
     source: 'home',
     ...overrides
@@ -19,8 +21,12 @@ function homePayload(overrides: Record<string, unknown> = {}): Record<string, un
 }
 
 function reservationPayload(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  const payload = homePayload({locale: 'ru', source: 'reservation'});
+  delete payload.captchaAnswer;
+  delete payload.captchaChallengeId;
+
   return {
-    ...homePayload({locale: 'ru', source: 'reservation'}),
+    ...payload,
     adults: 2,
     children: 1,
     ...overrides
@@ -190,6 +196,24 @@ describe('server booking payload validation', () => {
       ok: false
     });
     expect(validateBookingPayload(homePayload({website: ''}), today)).toMatchObject({ok: true});
+  });
+
+  it('requires CAPTCHA fields for Home and rejects them for Reservation', () => {
+    expect(validateBookingPayload(homePayload({captchaAnswer: undefined}), today)).toMatchObject({
+      fields: {captchaAnswer: 'invalid_type'},
+      kind: 'validation_failed',
+      ok: false
+    });
+    expect(validateBookingPayload(homePayload({captchaChallengeId: ''}), today)).toMatchObject({
+      fields: {captchaChallengeId: 'required'},
+      kind: 'validation_failed',
+      ok: false
+    });
+    expect(validateBookingPayload(reservationPayload({captchaAnswer: 'AB234', captchaChallengeId: 'challenge-id'}), today)).toMatchObject({
+      fields: {captchaAnswer: 'not_allowed', captchaChallengeId: 'not_allowed'},
+      kind: 'validation_failed',
+      ok: false
+    });
   });
 
   it('normalizes only the validated fields in the resulting request', () => {

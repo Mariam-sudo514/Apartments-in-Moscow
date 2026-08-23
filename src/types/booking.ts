@@ -23,6 +23,7 @@ export type ReservationBookingRequestDraft = BookingRequestBase & {
 export type BookingRequestDraft = HomeBookingRequestDraft | ReservationBookingRequestDraft;
 
 export type BookingFieldErrors = {
+  readonly captcha?: string;
   readonly guestName?: string;
   readonly guestPhone?: string;
   readonly checkIn?: string;
@@ -88,6 +89,13 @@ export type BookingLabels = BookingValidationLabels & BookingSendLabels & {
 };
 
 export type HomeBookingLabels = BookingValidationLabels & BookingSendLabels & {
+  readonly captchaAlt: string;
+  readonly captchaInvalid: string;
+  readonly captchaLabel: string;
+  readonly captchaLoadFailed: string;
+  readonly captchaPlaceholder: string;
+  readonly captchaRefresh: string;
+  readonly captchaRequired: string;
   readonly title: string;
   readonly description: string;
   readonly contactTitle: string;
@@ -96,10 +104,7 @@ export type HomeBookingLabels = BookingValidationLabels & BookingSendLabels & {
   readonly checkOutLabel: string;
   readonly apartmentLabel: string;
   readonly apartmentPlaceholder: string;
-  readonly review: string;
-  readonly reviewDisabledHint: string;
   readonly errorSummaryTitle: string;
-  readonly reviewedMessage: string;
 };
 
 export type HomeBookingApartmentOption = {

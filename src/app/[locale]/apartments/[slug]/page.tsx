@@ -101,31 +101,22 @@ export default async function ApartmentDetailPage({
             apartment={localized}
             labels={{
               bookingCta: t('bookingCta'),
-              from: t('from'),
-              perDay: t('perDay')
+              from: t('detail.from'),
+              perDay: t('detail.perDay')
             }}
           />
         </div>
 
         <ApartmentDescription
-          sections={localized.detail.sections}
-          title={localized.detail.title}
-        />
-        <ApartmentRules
-          checkIn={localized.detail.checkIn}
-          checkOut={localized.detail.checkOut}
-          labels={{
-            checkIn: t('detail.checkIn'),
-            checkOut: t('detail.checkOut'),
-            title: t('detail.rules')
-          }}
-          rules={localized.detail.rules}
-        />
-        <ApartmentAmenities
-          amenities={localized.detail.amenities}
-          title={t('detail.amenities')}
-        />
-        <ApartmentMap map={localized.detail.map} title={t('detail.map')} />
+          elements={localized.detail.descriptionElements}
+        >
+          <ApartmentRules block={localized.detail.rulesBlock} />
+          <ApartmentAmenities
+            columns={localized.detail.amenityColumns}
+            title={t('detail.amenities')}
+          />
+          <ApartmentMap map={localized.detail.map} title={t('detail.map')} />
+        </ApartmentDescription>
       </div>
     </>
   );

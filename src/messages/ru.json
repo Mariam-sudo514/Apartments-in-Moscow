@@ -57,6 +57,8 @@
       "positionOf": "из"
     },
     "detail": {
+      "from": "от",
+      "perDay": "в сутки",
       "rules": "Правила проживания",
       "checkIn": "Заезд",
       "checkOut": "Выезд",
@@ -87,15 +89,14 @@
     "introClosing": "С нами Москва становится родным городом.",
     "sectionLabel": "Контактная информация",
     "title": "Контакты",
-    "subtitle": "Мы всегда на связи — напишите нам, и мы поможем с бронированием",
+    "subtitle": "Мы всегда на связи — напишите или позвоните, и мы поможем с бронированием",
     "department": "Отдел бронирования:",
     "actions": {
       "whatsapp": "Написать в WhatsApp",
-      "telegram": "Написать в Telegram",
-      "email": "Написать по электронной почте"
+      "telegram": "Написать в Telegram"
     },
-    "visualTitle": "Свяжитесь с нами",
-    "visualText": "Выберите удобный способ связи"
+    "qrAlt": "QR-код Telegram",
+    "qrCaption": "Отсканируйте, чтобы написать нам в Telegram"
   },
   "reservation": {
     "breadcrumbs": {
@@ -153,7 +154,7 @@
     "booking": {
       "title": "Контактные данные",
       "description": "Укажите имя и телефон для проверки данных. Отправка выполняется отдельной кнопкой после проверки.",
-      "guestNameLabel": "Имя гостя",
+      "guestNameLabel": "Введите ваше полное имя",
       "guestNamePlaceholder": "Введите имя",
       "guestPhoneLabel": "Телефон",
       "guestPhonePlaceholder": "+7 000 000-00-00",
@@ -249,19 +250,24 @@
     },
     "booking": {
       "title": "Бронирование апартаментов",
-      "description": "Заполните данные для проверки. Отправка выполняется отдельной кнопкой после проверки.",
+      "description": "Заполните форму, чтобы забронировать апартаменты",
       "contactTitle": "Контактная информация",
       "bookingDetailsTitle": "Детали бронирования",
-      "guestNameLabel": "Имя гостя",
+      "guestNameLabel": "Введите ваше полное имя",
       "guestNamePlaceholder": "Иванов Иван Иванович",
-      "guestPhoneLabel": "Номер телефона",
+      "guestPhoneLabel": "Введите номер телефона",
       "guestPhonePlaceholder": "+7 900 000 00 00",
       "checkInLabel": "Дата заезда",
       "checkOutLabel": "Дата выезда",
-      "apartmentLabel": "Адрес квартиры",
+      "apartmentLabel": "Выберите адрес квартиры",
       "apartmentPlaceholder": "Выберите адрес",
-      "review": "Проверить данные",
-      "reviewDisabledHint": "Подготавливаем московскую дату для календаря.",
+      "captchaAlt": "captcha",
+      "captchaInvalid": "Введите символы с изображения CAPTCHA.",
+      "captchaLabel": "Капча",
+      "captchaLoadFailed": "Не удалось загрузить CAPTCHA. Обновите её и повторите попытку.",
+      "captchaPlaceholder": "Введите капчу",
+      "captchaRefresh": "Обновить CAPTCHA",
+      "captchaRequired": "Введите проверочный код.",
       "errorSummaryTitle": "Проверьте заполненные поля",
       "guestNameRequired": "Введите имя гостя.",
       "guestNameTooShort": "Имя должно содержать минимум 2 символа.",
@@ -276,10 +282,9 @@
       "checkOutRequired": "Выберите дату выезда.",
       "checkOutAfterCheckIn": "Дата выезда должна быть позже даты заезда.",
       "apartmentRequired": "Выберите квартиру.",
-      "todayInitializing": "Календарь готовится. Повторите проверку через мгновение.",
-      "reservationIncomplete": "Выберите корректные даты и квартиру перед проверкой данных.",
-      "reviewedMessage": "Данные прошли локальную проверку. Проверьте их и отправьте заявку отдельной кнопкой.",
-      "sendRequest": "Отправить заявку",
+      "todayInitializing": "Календарь готовится. Повторите попытку через мгновение.",
+      "reservationIncomplete": "Выберите корректные даты и квартиру перед отправкой заявки.",
+      "sendRequest": "Подать заявку",
       "sending": "Отправляем заявку…",
       "successMessage": "Заявка отправлена в локальный тестовый почтовый ящик.",
       "networkFailure": "Не удалось связаться с сервером. Проверьте соединение и повторите попытку.",
@@ -293,7 +298,7 @@
       "serverMisconfigured": "Локальная доставка сейчас не настроена.",
       "deliveryNotConfigured": "Локальная тестовая доставка сейчас не настроена.",
       "deliveryFailed": "Не удалось отправить заявку в локальный тестовый ящик.",
-      "retry": "Повторить отправку"
+      "retry": "Повторить попытку"
     },
     "contacts": {
       "title": "Контакты",
@@ -301,12 +306,8 @@
       "bookingDepartment": "Отдел бронирования:",
       "actions": {
         "whatsapp": "Написать в WhatsApp",
-        "telegram": "Написать в Telegram",
-        "email": "Написать по электронной почте"
-      },
-      "panelTitle": "Связаться с нами",
-      "panelText": "Выберите удобный способ связи",
-      "contactsLink": "Открыть контакты"
+        "telegram": "Написать в Telegram"
+      }
     }
   },
   "notFound": "Страница не найдена"

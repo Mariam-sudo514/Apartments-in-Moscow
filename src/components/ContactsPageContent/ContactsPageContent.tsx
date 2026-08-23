@@ -1,9 +1,8 @@
 import {getTranslations} from 'next-intl/server';
-import {FiMessageCircle} from 'react-icons/fi';
 
 import {ContactInformation} from '@/components/ContactInformation';
+import {ContactQrPanel} from '@/components/ContactQrPanel';
 import {Container} from '@/components/Container';
-import {SocialLinks} from '@/components/SocialLinks';
 import type {Locale} from '@/types/locale';
 
 import styles from './ContactsPageContent.module.css';
@@ -15,7 +14,6 @@ type ContactsPageContentProps = {
 export async function ContactsPageContent({locale}: ContactsPageContentProps) {
   const t = await getTranslations({locale, namespace: 'contacts'});
   const socialLabels = {
-    email: t('actions.email'),
     telegram: t('actions.telegram'),
     whatsapp: t('actions.whatsapp')
   };
@@ -41,18 +39,7 @@ export async function ContactsPageContent({locale}: ContactsPageContentProps) {
             }}
           />
 
-          <section aria-labelledby="contact-visual-title" className={styles.visual}>
-            <div aria-hidden="true" className={styles.visualIcon}>
-              <FiMessageCircle aria-hidden="true" focusable="false" />
-            </div>
-            <h2 className={styles.visualTitle} id="contact-visual-title">
-              {t('visualTitle')}
-            </h2>
-            <p className={styles.visualText}>{t('visualText')}</p>
-            <div className={styles.socialLinks}>
-              <SocialLinks labels={socialLabels} variant="header" />
-            </div>
-          </section>
+          <ContactQrPanel labels={{alt: t('qrAlt'), caption: t('qrCaption')}} />
         </div>
       </section>
     </Container>

@@ -13,6 +13,7 @@ import {getSiteUrl} from '@/config/site';
 import {routing} from '@/i18n/routing';
 import {isLocale} from '@/types/locale';
 
+import '@/styles/reset.css';
 import '../globals.css';
 
 const montserrat = localFont({

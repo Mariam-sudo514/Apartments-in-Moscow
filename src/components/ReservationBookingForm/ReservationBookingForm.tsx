@@ -13,7 +13,7 @@ import type {IsoDate} from '@/types/reservation';
 import type {
   BookingFieldErrors,
   BookingLabels,
-  BookingRequestDraft
+  ReservationBookingRequestDraft
 } from '@/types/booking';
 
 import styles from './ReservationBookingForm.module.css';
@@ -36,7 +36,7 @@ type TouchedFields = {
 };
 
 type ReviewState = {
-  readonly draft: BookingRequestDraft;
+  readonly draft: ReservationBookingRequestDraft;
   readonly reservationKey: string;
 };
 

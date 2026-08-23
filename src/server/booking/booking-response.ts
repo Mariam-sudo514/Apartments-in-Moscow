@@ -19,6 +19,8 @@ const MESSAGES: Record<BookingApiErrorCode, string> = {
   INTERNAL_ERROR: 'The booking service could not complete the request.',
   INVALID_JSON: 'The request body is not valid JSON.',
   INVALID_REQUEST: 'The booking request is invalid.',
+  CAPTCHA_INVALID: 'The CAPTCHA answer is invalid or expired.',
+  CAPTCHA_REQUIRED: 'A CAPTCHA answer is required.',
   PAYLOAD_TOO_LARGE: 'The request body is too large.',
   RATE_LIMITED: 'Too many booking requests.',
   REQUEST_FORBIDDEN: 'The booking request is not allowed.',

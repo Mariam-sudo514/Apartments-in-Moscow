@@ -2,7 +2,6 @@
 
 import type {MouseEvent, ReactNode} from 'react';
 import {useEffect, useId, useRef, useState} from 'react';
-import {FaBars, FaTimes} from 'react-icons/fa';
 
 import styles from './MobileNavigation.module.css';
 
@@ -137,9 +136,39 @@ export function MobileNavigation({
         type="button"
       >
         {isOpen ? (
-          <FaTimes aria-hidden="true" focusable="false" />
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            height="19"
+            viewBox="0 0 20 19"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M1 1L17.5858 17.5858M18.1716 1L1.58579 17.5858"
+              fill="none"
+              stroke="#191919"
+              strokeLinecap="round"
+              strokeWidth="2"
+            />
+          </svg>
         ) : (
-          <FaBars aria-hidden="true" focusable="false" />
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            height="14"
+            viewBox="0 0 25 14"
+            width="25"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M1 1H24M1 7H19M1 13H24"
+              fill="none"
+              stroke="#191919"
+              strokeLinecap="round"
+              strokeWidth="2"
+            />
+          </svg>
         )}
       </button>
 

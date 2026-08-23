@@ -1,42 +1,40 @@
-import styles from './ApartmentRules.module.css';
-
-type ApartmentRulesLabels = {
-  readonly checkIn: string;
-  readonly checkOut: string;
-  readonly title: string;
-};
+import {DescriptionElements} from '@/components/ApartmentDescription/ApartmentDescription';
+import styles from '@/components/ApartmentDescription/ApartmentDescription.module.css';
+import {
+  legacyCheckInIconPath,
+  legacyCheckOutIconPath,
+} from '@/data/apartments/legacy-detail-content';
+import type {LocalizedApartmentRulesBlock} from '@/types/apartment';
 
 type ApartmentRulesProps = {
-  readonly checkIn: string;
-  readonly checkOut: string;
-  readonly labels: ApartmentRulesLabels;
-  readonly rules: readonly string[];
+  readonly block: LocalizedApartmentRulesBlock;
 };
 
-export function ApartmentRules({
-  checkIn,
-  checkOut,
-  labels,
-  rules
-}: ApartmentRulesProps) {
+export function ApartmentRules({block}: ApartmentRulesProps) {
   return (
-    <section className={styles.section}>
-      <h2 className={styles.title}>{labels.title}</h2>
-      <ul className={styles.list}>
-        {rules.map((rule) => (
-          <li key={rule}>{rule}</li>
+    <div className={styles.block}>
+      <h1 className={`${styles.title} ${styles.rules}`}>{block.title}</h1>
+      <ul className={`${styles.list} ${styles.rulesList}`}>
+        {block.timings.map((timing) => (
+          <li className={styles.rulesItem} key={timing.icon}>
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="25"
+              viewBox="0 0 25 25"
+              width="25"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d={timing.icon === 'checkIn' ? legacyCheckInIconPath : legacyCheckOutIconPath}
+                fill="black"
+              />
+            </svg>
+            <p className={styles.text}>{timing.text}</p>
+          </li>
         ))}
       </ul>
-      <div className={styles.timings}>
-        <p>
-          <span>{labels.checkIn}</span>
-          {checkIn}
-        </p>
-        <p>
-          <span>{labels.checkOut}</span>
-          {checkOut}
-        </p>
-      </div>
-    </section>
+      <DescriptionElements elements={block.elements} />
+    </div>
   );
 }

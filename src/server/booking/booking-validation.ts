@@ -17,6 +17,8 @@ const ALLOWED_KEYS = new Set([
   'checkIn',
   'checkOut',
   'children',
+  'captchaAnswer',
+  'captchaChallengeId',
   'guestName',
   'guestPhone',
   'locale',
@@ -29,7 +31,14 @@ const PHONE_CHARACTER_PATTERN = /^[+0-9() -]+$/u;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/u;
 
 export type BookingValidationResult =
-  | {readonly ok: true; readonly request: ValidatedBookingRequest}
+  | {
+      readonly captcha?: {
+        readonly answer: string;
+        readonly challengeId: string;
+      };
+      readonly ok: true;
+      readonly request: ValidatedBookingRequest;
+    }
   | {
       readonly ok: false;
       readonly kind: 'invalid_request' | 'validation_failed';
@@ -269,16 +278,48 @@ export function validateBookingPayload(
 
   let adults: number | null = null;
   let children: number | null = null;
+  let captcha: {readonly answer: string; readonly challengeId: string} | undefined;
 
   if (sourceValue === 'reservation') {
     adults = validateIntegerField(payload, 'adults', 1, 10, errors);
     children = validateIntegerField(payload, 'children', 0, 10, errors);
+    if (hasOwn(payload, 'captchaAnswer')) {
+      errors.captchaAnswer = 'not_allowed';
+    }
+    if (hasOwn(payload, 'captchaChallengeId')) {
+      errors.captchaChallengeId = 'not_allowed';
+    }
   } else if (sourceValue === 'home') {
     if (hasOwn(payload, 'adults')) {
       errors.adults = 'not_allowed';
     }
     if (hasOwn(payload, 'children')) {
       errors.children = 'not_allowed';
+    }
+
+    const captchaChallengeId = getStringField(payload, 'captchaChallengeId', errors);
+    const captchaAnswer = getStringField(payload, 'captchaAnswer', errors);
+
+    if (captchaChallengeId !== null && captchaChallengeId.length === 0) {
+      errors.captchaChallengeId = 'required';
+    }
+
+    if (captchaAnswer !== null && captchaAnswer.trim().length === 0) {
+      errors.captchaAnswer = 'required';
+    }
+
+    if (captchaChallengeId !== null && captchaAnswer !== null &&
+      captchaChallengeId.length > 200) {
+      errors.captchaChallengeId = 'too_long';
+    }
+
+    if (captchaChallengeId !== null && captchaAnswer !== null &&
+      captchaChallengeId.length > 0 && captchaAnswer.trim().length > 0 &&
+      errors.captchaChallengeId === undefined && errors.captchaAnswer === undefined) {
+      captcha = {
+        answer: captchaAnswer,
+        challengeId: captchaChallengeId
+      };
     }
   }
 
@@ -322,6 +363,7 @@ export function validateBookingPayload(
         })
       }
     : {
+        captcha,
         ok: true,
         request: createBookingRequestDraft({...base, source: 'home'})
       };

@@ -1,45 +1,70 @@
-import type {LocalizedApartmentSection} from '@/types/apartment';
+import type {ReactNode} from 'react';
+
+import {Container} from '@/components/Container';
+import type {LocalizedApartmentDescriptionElement} from '@/types/apartment';
 
 import styles from './ApartmentDescription.module.css';
 
 type ApartmentDescriptionProps = {
-  readonly sections: readonly LocalizedApartmentSection[];
-  readonly title: string;
+  readonly children: ReactNode;
+  readonly elements: readonly LocalizedApartmentDescriptionElement[];
 };
 
-function SectionContent({section}: {readonly section: LocalizedApartmentSection}) {
+export function DescriptionElements({
+  elements
+}: {
+  readonly elements: readonly LocalizedApartmentDescriptionElement[];
+}) {
   return (
     <>
-      {section.paragraphs.map((paragraph) => (
-        <p className={styles.text} key={paragraph}>
-          {paragraph}
-        </p>
-      ))}
-      {section.items.length > 0 ? (
-        <ul className={styles.list}>
-          {section.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      ) : null}
+      {elements.map((element, index) => {
+        if (element.type === 'heading') {
+          const Heading = element.level === 1 ? 'h1' : 'h2';
+          return (
+            <Heading
+              className={element.level === 1 ? styles.title : styles.title2}
+              key={`heading-${index}`}
+            >
+              {element.text}
+            </Heading>
+          );
+        }
+
+        if (element.type === 'paragraph') {
+          const className = element.variant === 'infrastructure'
+            ? styles.textInfrastructure
+            : element.variant === 'indented'
+              ? styles.textIndented
+              : styles.text;
+
+          return (
+            <p className={className} key={`paragraph-${index}`}>
+              {element.text}
+            </p>
+          );
+        }
+
+        return (
+          <ul className={styles.list} key={`list-${index}`}>
+            {element.items.map((item, itemIndex) => (
+              <li className={styles.item} key={`${item}-${itemIndex}`}>
+                {item}
+              </li>
+            ))}
+          </ul>
+        );
+      })}
     </>
   );
 }
 
-export function ApartmentDescription({sections, title}: ApartmentDescriptionProps) {
-  const [leadSection, ...remainingSections] = sections;
-
+export function ApartmentDescription({children, elements}: ApartmentDescriptionProps) {
   return (
-    <section className={styles.section}>
-      <h1 className={styles.title}>{title}</h1>
-      {leadSection ? <SectionContent section={leadSection} /> : null}
-
-      {remainingSections.map((section) => (
-        <section className={styles.subsection} key={section.title}>
-          <h2 className={styles.title2}>{section.title}</h2>
-          <SectionContent section={section} />
-        </section>
-      ))}
-    </section>
+    <Container className={styles.description}>
+      <div className={styles.block}>
+        <DescriptionElements elements={elements} />
+      </div>
+      {children}
+    </Container>
   );
 }

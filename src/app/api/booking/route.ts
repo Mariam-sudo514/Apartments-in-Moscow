@@ -1,6 +1,7 @@
 import 'server-only';
 
 import {getMoscowTodayIso} from '@/lib/reservation/calendar';
+import {verifyCaptchaChallenge} from '@/server/captcha';
 import {
   BOOKING_BODY_LIMIT_BYTES,
   BookingBodyTooLargeError,
@@ -73,6 +74,21 @@ export async function POST(request: Request): Promise<Response> {
     return validation.kind === 'invalid_request'
       ? createBookingErrorResponse('INVALID_REQUEST', 400)
       : createBookingErrorResponse('VALIDATION_FAILED', 422, validation.fields);
+  }
+
+  if (validation.request.source === 'home') {
+    if (validation.captcha === undefined) {
+      return createBookingErrorResponse('CAPTCHA_REQUIRED', 422);
+    }
+
+    const captcha = verifyCaptchaChallenge(
+      validation.captcha.challengeId,
+      validation.captcha.answer
+    );
+
+    if (!captcha.ok) {
+      return createBookingErrorResponse('CAPTCHA_INVALID', 422);
+    }
   }
 
   const quote = calculateTrustedBookingQuote(validation.request);

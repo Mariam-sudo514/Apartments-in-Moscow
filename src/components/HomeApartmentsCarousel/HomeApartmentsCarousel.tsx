@@ -1,15 +1,10 @@
 'use client';
 
-import Image from 'next/image';
-import {useRef, useState, useSyncExternalStore} from 'react';
-import {FiChevronLeft, FiChevronRight} from 'react-icons/fi';
-import {A11y, Autoplay, Keyboard, Navigation, Pagination} from 'swiper/modules';
-import type {Swiper as SwiperClass} from 'swiper';
-import {Swiper, SwiperSlide} from 'swiper/react';
+import {useEffect, useRef, useSyncExternalStore} from 'react';
+import Swiper from 'swiper';
+import {Autoplay, Navigation, Pagination} from 'swiper/modules';
 
 import {Link} from '@/i18n/navigation';
-import type {ApartmentPrice} from '@/types/apartment';
-import type {Locale} from '@/types/locale';
 
 import styles from './HomeApartmentsCarousel.module.css';
 
@@ -17,34 +12,20 @@ const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
 
 export type HomeApartmentSlide = {
   readonly address: string;
-  readonly coverAlt: string;
-  readonly coverPath: string;
+  readonly buttonLabel: string;
+  readonly description: string;
   readonly href: string;
-  readonly name: string;
-  readonly price: ApartmentPrice;
-  readonly shortDescription: string;
+  readonly imageAlt: string;
+  readonly imageHeight: number;
+  readonly imagePath: string;
+  readonly imageWidth: number;
+  readonly price: string;
+  readonly priceLabel: string;
   readonly slug: string;
   readonly type: string;
 };
 
-export type HomeApartmentsCarouselLabels = {
-  readonly carouselLabel: string;
-  readonly carouselRole: string;
-  readonly from: string;
-  readonly moreDetails: string;
-  readonly next: string;
-  readonly pause: string;
-  readonly paginationBullet: string;
-  readonly perDay: string;
-  readonly previous: string;
-  readonly resume: string;
-  readonly slideLabelOf: string;
-  readonly slideLabelPrefix: string;
-};
-
 type HomeApartmentsCarouselProps = {
-  readonly labels: HomeApartmentsCarouselLabels;
-  readonly locale: Locale;
   readonly slides: readonly HomeApartmentSlide[];
 };
 
@@ -68,159 +49,101 @@ function getReducedMotionServerSnapshot(): boolean {
   return false;
 }
 
-function formatPrice(price: ApartmentPrice, locale: 'ru' | 'en'): string {
-  return new Intl.NumberFormat(locale, {
-    currency: price.currency,
-    currencyDisplay: 'narrowSymbol',
-    maximumFractionDigits: 0,
-    style: 'currency'
-  }).format(price.amount);
-}
-
-export function HomeApartmentsCarousel({
-  labels,
-  locale,
-  slides
-}: HomeApartmentsCarouselProps) {
-  const swiperRef = useRef<SwiperClass | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
+export function HomeApartmentsCarousel({slides}: HomeApartmentsCarouselProps) {
   const reducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
     getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot
+    getReducedMotionServerSnapshot,
   );
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = wrapperRef.current;
+
+    if (!root) {
+      return;
+    }
+
+    const pagination = root.querySelector<HTMLElement>('.swiper-pagination');
+    const previous = root.querySelector<HTMLElement>('.swiper-button-prev');
+    const next = root.querySelector<HTMLElement>('.swiper-button-next');
+
+    if (!pagination || !previous || !next) {
+      return;
+    }
+
+    const swiper = new Swiper(root, {
+      modules: [Autoplay, Pagination, Navigation],
+      loop: true,
+      spaceBetween: 30,
+      autoplay: reducedMotion
+        ? false
+        : {
+            delay: 5000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          },
+      pagination: {
+        el: pagination,
+        clickable: true,
+        dynamicBullets: true,
+      },
+      navigation: {
+        nextEl: next,
+        prevEl: previous,
+      },
+      breakpoints: {
+        0: {slidesPerView: 1},
+        768: {slidesPerView: 2},
+        1024: {slidesPerView: 3},
+      },
+    });
+
+    return () => swiper.destroy(true, true);
+  }, [reducedMotion]);
 
   if (slides.length === 0) {
     return null;
   }
 
   return (
-    <div
-      className={styles.carouselFrame}
-      onMouseEnter={() => {
-        if (!reducedMotion && !isPaused) {
-          swiperRef.current?.autoplay.pause();
-        }
-      }}
-      onMouseLeave={() => {
-        if (!reducedMotion && !isPaused) {
-          swiperRef.current?.autoplay.resume();
-        }
-      }}
-    >
-      <Swiper
-        a11y={{
-          containerMessage: labels.carouselLabel,
-          containerRole: 'region',
-          containerRoleDescriptionMessage: labels.carouselRole,
-          nextSlideMessage: labels.next,
-          paginationBulletMessage: `${labels.paginationBullet} {{index}}`,
-          prevSlideMessage: labels.previous,
-          slideLabelMessage: `${labels.slideLabelPrefix} {{index}} ${labels.slideLabelOf} {{slidesLength}}`
-        }}
-        autoplay={
-          reducedMotion
-            ? false
-            : {
-                delay: 5000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true
-              }
-        }
-        breakpoints={{
-          768: {slidesPerView: 2},
-          1024: {slidesPerView: 3}
-        }}
-        className={styles.swiper}
-        keyboard={{enabled: true, onlyInViewport: true}}
-        key={reducedMotion ? 'reduced-motion' : 'full-motion'}
-        loop
-        modules={[Navigation, Pagination, Autoplay, Keyboard, A11y]}
-        navigation={{
-          nextEl: `.${styles.nextButton}`,
-          prevEl: `.${styles.previousButton}`
-        }}
-        pagination={{clickable: true, dynamicBullets: true}}
-        slidesPerView={1}
-        spaceBetween={30}
-        onSwiper={(swiper) => {
-          swiperRef.current = swiper;
-          setIsPaused(false);
-        }}
-      >
-        {slides.map((slide) => (
-          <SwiperSlide key={slide.slug} data-apartment-slug={slide.slug}>
-            <article aria-label={slide.name} className={styles.card}>
-              <div className={styles.imageFrame}>
-                <Image
-                  alt={slide.coverAlt}
+    <div className={[styles.container, 'swiper'].join(' ')}>
+      <div className={styles.wrapper} ref={wrapperRef}>
+        <div className={[styles.cardList, 'swiper-wrapper'].join(' ')}>
+          {slides.map((slide) => (
+            <div className={[styles.card, 'swiper-slide'].join(' ')} key={slide.slug}>
+              <div className={styles.cardImage}>
+                {/* The legacy carousel eagerly loads every slide image. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  alt={slide.imageAlt}
                   className={styles.image}
-                  fill
-                  sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1023px) calc(50vw - 45px), 330px"
-                  src={slide.coverPath}
+                  src={slide.imagePath}
                 />
-                <p className={styles.tag}>{slide.type}</p>
+                <p className={styles.cardTag}>{slide.type}</p>
               </div>
-
-              <div className={styles.content}>
-                <h3 className={styles.title}>{slide.address}</h3>
-                <p className={styles.description}>{slide.shortDescription}</p>
-
-                <div className={styles.footer}>
-                  <div className={styles.priceBlock}>
-                    <p className={styles.price}>
-                      {slide.price.mode === 'from' ? `${labels.from} ` : ''}
-                      {formatPrice(slide.price, locale)}
-                    </p>
-                    <p className={styles.priceRole}>{labels.perDay}</p>
+              <div className={styles.cardContent}>
+                <h3 className={styles.cardTitle}>{slide.address}</h3>
+                <p className={styles.cardText}>{slide.description}</p>
+                <div className={styles.cardFooter}>
+                  <div className={styles.cardProfile}>
+                    <div className={styles.cardProfileInfo}>
+                      <span className={styles.cardProfilePrice}>{slide.price}</span>
+                      <span className={styles.cardProfileRole}>{slide.priceLabel}</span>
+                    </div>
                   </div>
-
-                  <Link
-                    aria-label={`${labels.moreDetails}: ${slide.name}, ${slide.address}`}
-                    className={styles.button}
-                    href={slide.href}
-                  >
-                    {labels.moreDetails}
+                  <Link className={styles.cardButton} href={slide.href}>
+                    {slide.buttonLabel}
                   </Link>
                 </div>
               </div>
-            </article>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-
-      <button
-        aria-label={labels.previous}
-        className={[styles.navigationButton, styles.previousButton].join(' ')}
-        type="button"
-      >
-        <FiChevronLeft aria-hidden="true" focusable="false" />
-      </button>
-      <button
-        aria-label={labels.next}
-        className={[styles.navigationButton, styles.nextButton].join(' ')}
-        type="button"
-      >
-        <FiChevronRight aria-hidden="true" focusable="false" />
-      </button>
-      {!reducedMotion && (
-        <button
-          aria-label={isPaused ? labels.resume : labels.pause}
-          className={styles.motionButton}
-          onClick={() => {
-            if (isPaused) {
-              swiperRef.current?.autoplay.resume();
-              setIsPaused(false);
-            } else {
-              swiperRef.current?.autoplay.pause();
-              setIsPaused(true);
-            }
-          }}
-          type="button"
-        >
-          {isPaused ? labels.resume : labels.pause}
-        </button>
-      )}
+            </div>
+          ))}
+        </div>
+        <div className="swiper-pagination" />
+        <div className="swiper-button-prev" />
+        <div className="swiper-button-next" />
+      </div>
     </div>
   );
 }

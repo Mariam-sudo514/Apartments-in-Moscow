@@ -1,13 +1,23 @@
-import type {BookingSendLabels, BookingRequestDraft} from '@/types/booking';
+import type {
+  BookingSendLabels,
+  HomeBookingRequestDraft,
+  ReservationBookingRequestDraft
+} from '@/types/booking';
 import type {
   BookingApiAcceptedResponse,
   BookingApiErrorCode,
   BookingApiResponse
 } from '@/types/booking-api';
 
-export type BookingApiPayload = BookingRequestDraft & {
+export type BookingApiPayload = {
   readonly website: string;
-};
+} & (
+  | (HomeBookingRequestDraft & {
+      readonly captchaAnswer: string;
+      readonly captchaChallengeId: string;
+    })
+  | ReservationBookingRequestDraft
+);
 
 export type BookingApiClientFailure =
   | {readonly kind: 'aborted'}
@@ -40,7 +50,9 @@ function isBookingApiErrorCode(value: unknown): value is BookingApiErrorCode {
     'REQUEST_FORBIDDEN',
     'SERVER_MISCONFIGURED',
     'UNSUPPORTED_MEDIA_TYPE',
-    'VALIDATION_FAILED'
+    'VALIDATION_FAILED',
+    'CAPTCHA_REQUIRED',
+    'CAPTCHA_INVALID'
   ].includes(value);
 }
 
@@ -142,6 +154,9 @@ export function getBookingClientErrorMessage(
       return labels.requestUnsupportedMedia;
     case 'VALIDATION_FAILED':
       return labels.requestValidationFailed;
+    case 'CAPTCHA_REQUIRED':
+    case 'CAPTCHA_INVALID':
+      return labels.requestInvalid;
     case 'INTERNAL_ERROR':
     case 'INVALID_JSON':
     case 'INVALID_REQUEST':

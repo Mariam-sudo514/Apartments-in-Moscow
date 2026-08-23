@@ -1,0 +1,1 @@
+export {BookingCaptcha} from './BookingCaptcha';

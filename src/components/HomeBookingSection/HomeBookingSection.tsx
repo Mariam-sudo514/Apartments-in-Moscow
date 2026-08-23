@@ -6,11 +6,26 @@ import {getAllApartments, getLocalizedApartment} from '@/data/apartments';
 import type {HomeBookingLabels, HomeBookingApartmentOption} from '@/types/booking';
 import type {Locale} from '@/types/locale';
 
-import styles from './HomeBookingSection.module.css';
-
 type HomeBookingSectionProps = {
   readonly locale: Locale;
 };
+
+function getHomeApartmentLabel(
+  locale: Locale,
+  catalogOrder: number,
+  address: string,
+  type: string
+): string {
+  if (catalogOrder === 12) {
+    return address.replace(/, (?:10Б|10B)$/u, '');
+  }
+
+  const legacyBuildingSuffix = catalogOrder === 4 || catalogOrder === 5
+    ? locale === 'en' ? ', building 3' : ', корпус 3'
+    : '';
+
+  return `${address}${legacyBuildingSuffix}, ${type} кв. ${catalogOrder}`;
+}
 
 export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
   const t = await getTranslations({locale, namespace: 'home.booking'});
@@ -19,7 +34,12 @@ export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
 
     return {
       address: localized.catalog.address,
-      label: localized.catalog.name,
+      label: getHomeApartmentLabel(
+        locale,
+        localized.catalogOrder,
+        localized.catalog.address,
+        localized.catalog.type
+      ),
       slug: localized.slug
     };
   });
@@ -35,6 +55,13 @@ export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
     checkOutLabel: t('checkOutLabel'),
     checkOutRequired: t('checkOutRequired'),
     contactTitle: t('contactTitle'),
+    captchaAlt: t('captchaAlt'),
+    captchaInvalid: t('captchaInvalid'),
+    captchaLabel: t('captchaLabel'),
+    captchaLoadFailed: t('captchaLoadFailed'),
+    captchaPlaceholder: t('captchaPlaceholder'),
+    captchaRefresh: t('captchaRefresh'),
+    captchaRequired: t('captchaRequired'),
     description: t('description'),
     errorSummaryTitle: t('errorSummaryTitle'),
     guestNameControlCharacters: t('guestNameControlCharacters'),
@@ -50,9 +77,6 @@ export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
     guestPhoneTooLong: t('guestPhoneTooLong'),
     guestPhoneTooShort: t('guestPhoneTooShort'),
     reservationIncomplete: t('reservationIncomplete'),
-    review: t('review'),
-    reviewDisabledHint: t('reviewDisabledHint'),
-    reviewedMessage: t('reviewedMessage'),
     sendRequest: t('sendRequest'),
     sending: t('sending'),
     successMessage: t('successMessage'),
@@ -73,10 +97,8 @@ export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
   };
 
   return (
-    <section aria-labelledby="home-booking-title" className={styles.section}>
-      <Container>
-        <HomeBookingForm apartments={apartments} labels={labels} locale={locale} />
-      </Container>
-    </section>
+    <Container>
+      <HomeBookingForm apartments={apartments} labels={labels} locale={locale} />
+    </Container>
   );
 }

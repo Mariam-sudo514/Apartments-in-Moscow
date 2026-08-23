@@ -17,16 +17,6 @@
   display: none;
 }
 
-@media (max-width: 900px) {
-  .logo.navigation .full {
-    display: none;
-  }
-
-  .logo.navigation .compact {
-    display: block;
-  }
-}
-
 @media (max-width: 450px) {
   .logo.footer .full {
     display: none;

@@ -13,38 +13,33 @@
 
 .link {
   position: relative;
-  display: inline-block;
   padding-bottom: 4px;
   color: #191919;
   font-size: 20px;
   font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.5;
+  letter-spacing: 0.01em;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .link::after {
   position: absolute;
-  right: 0;
-  bottom: 0;
   left: 0;
+  bottom: 0;
   height: 2px;
+  width: 0;
   background-color: #ff6d75;
   border-radius: 2px;
   content: '';
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
+  transition: width 0.3s ease;
 }
 
 .link:hover {
   color: #5d5d5d;
 }
 
-.link:hover::after,
-.link:focus-visible::after {
-  transform: scaleX(1);
+.link:hover::after {
+  width: 100%;
 }
 
 .header .list {
@@ -67,8 +62,7 @@
 
 .mobile .list {
   flex-direction: column;
-  gap: 30px;
-  align-items: flex-start;
+  gap: 50px;
 }
 
 @media (max-width: 992px) {

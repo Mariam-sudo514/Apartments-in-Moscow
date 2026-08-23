@@ -8,11 +8,16 @@
   box-shadow: 0 5px 15px rgb(0 0 0 / 10%);
 }
 
+.homePanel {
+  flex-basis: 500px;
+  max-width: 500px;
+}
+
 .title {
   color: #191919;
   font-size: 34px;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.2;
 }
 
 .subtitle {
@@ -32,11 +37,50 @@
   line-height: 1.5;
 }
 
-.actions {
+.contactRows {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  color: #191919;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.contactRow a {
+  display: inline-flex;
+  align-items: center;
+  gap: 19px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.contactRow svg {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  color: #6f6f6f;
+}
+
+.contactRow a:focus-visible {
+  outline: 3px solid #ff868c;
+  outline-offset: 3px;
+}
+
+.messengers {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-top: auto;
+  margin-top: 30px;
 }
 
 .action {
@@ -66,6 +110,11 @@
 .action:hover {
   box-shadow: 0 8px 12px rgb(0 0 0 / 18%);
   transform: translateY(-3px);
+}
+
+.action:focus-visible {
+  outline: 3px solid #ff868c;
+  outline-offset: 3px;
 }
 
 @media (max-width: 1050px) {
