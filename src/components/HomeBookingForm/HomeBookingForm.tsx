@@ -5,6 +5,7 @@ import {createPortal} from 'react-dom';
 import {useCallback, useEffect, useRef, useState} from 'react';
 
 import {BookingCaptcha} from '@/components/BookingCaptcha';
+import {HomeDatePicker} from '@/components/HomeBookingForm/HomeDatePicker';
 import {
   getBookingClientErrorMessage,
   submitBookingRequest
@@ -16,7 +17,8 @@ import type {IsoDate} from '@/types/reservation';
 import type {
   BookingFieldErrors,
   HomeBookingApartmentOption,
-  HomeBookingLabels
+  HomeBookingLabels,
+  PreferredContactMethod
 } from '@/types/booking';
 
 import styles from './HomeBookingForm.module.css';
@@ -27,7 +29,8 @@ type HomeBookingFormProps = {
   readonly locale: Locale;
 };
 
-type HomeField = 'guestName' | 'guestPhone' | 'checkIn' | 'checkOut' | 'apartment' | 'captcha';
+type HomeField = 'guestName' | 'guestEmail' | 'preferredContactMethod' | 'preferredContactValue' | 'checkIn' | 'checkOut' | 'apartment' | 'captcha';
+type HomeDateField = 'checkIn' | 'checkOut';
 
 type TouchedFields = Record<HomeField, boolean>;
 type SendStatus = 'idle' | 'sending';
@@ -39,21 +42,27 @@ type HomeAlert = {
   readonly visible: boolean;
 };
 
+const homeBookingDraftStorageKey = 'home-booking-draft';
+
 const initialTouched: TouchedFields = {
   apartment: false,
   captcha: false,
   checkIn: false,
   checkOut: false,
+  guestEmail: false,
   guestName: false,
-  guestPhone: false
+  preferredContactMethod: false,
+  preferredContactValue: false
 };
 
 export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const guestNameRef = useRef<HTMLInputElement>(null);
-  const guestPhoneRef = useRef<HTMLInputElement>(null);
-  const checkInRef = useRef<HTMLInputElement>(null);
-  const checkOutRef = useRef<HTMLInputElement>(null);
+  const guestEmailRef = useRef<HTMLInputElement>(null);
+  const preferredContactMethodRef = useRef<HTMLSelectElement>(null);
+  const preferredContactValueRef = useRef<HTMLInputElement>(null);
+  const checkInRef = useRef<HTMLButtonElement>(null);
+  const checkOutRef = useRef<HTMLButtonElement>(null);
   const apartmentRef = useRef<HTMLSelectElement>(null);
   const captchaInputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -62,10 +71,13 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
   const alertTimersRef = useRef<number[]>([]);
   const [todayIso, setTodayIso] = useState<IsoDate | null>(null);
   const [guestName, setGuestName] = useState('');
-  const [guestPhone, setGuestPhone] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [preferredContactMethod, setPreferredContactMethod] = useState<PreferredContactMethod | ''>('');
+  const [preferredContactValue, setPreferredContactValue] = useState('');
   const [checkIn, setCheckIn] = useState<IsoDate | null>(null);
   const [checkOut, setCheckOut] = useState<IsoDate | null>(null);
   const [selectedApartmentSlug, setSelectedApartmentSlug] = useState<string | null>(null);
+  const [openDatePicker, setOpenDatePicker] = useState<HomeDateField | null>(null);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [captchaChallengeId, setCaptchaChallengeId] = useState<string | null>(null);
   const [captchaReloadToken, setCaptchaReloadToken] = useState(0);
@@ -82,6 +94,14 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
     const timer = window.setTimeout(() => setTodayIso(getMoscowTodayIso()), 0);
 
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.removeItem(homeBookingDraftStorageKey);
+    } catch {
+      // Storage may be unavailable; the form remains fully usable without it.
+    }
   }, []);
 
   useEffect(() => () => {
@@ -110,13 +130,27 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
     clearFieldError('guestName');
   }
 
-  function handlePhoneChange(event: ChangeEvent<HTMLInputElement>): void {
-    setGuestPhone(event.target.value);
-    clearFieldError('guestPhone');
+  function handleEmailChange(event: ChangeEvent<HTMLInputElement>): void {
+    setGuestEmail(event.target.value);
+    clearFieldError('guestEmail');
   }
 
-  function handleCheckInChange(event: ChangeEvent<HTMLInputElement>): void {
-    const nextCheckIn = event.target.value === '' ? null : event.target.value as IsoDate;
+  function handlePreferredContactMethodChange(event: ChangeEvent<HTMLSelectElement>): void {
+    const value = event.target.value;
+
+    setPreferredContactMethod(value === 'email' || value === 'whatsapp' || value === 'telegram' ? value : '');
+    setPreferredContactValue('');
+    setTouched((current) => ({...current, preferredContactValue: false}));
+    clearFieldError('preferredContactMethod');
+    clearFieldError('preferredContactValue');
+  }
+
+  function handlePreferredContactValueChange(event: ChangeEvent<HTMLInputElement>): void {
+    setPreferredContactValue(event.target.value);
+    clearFieldError('preferredContactValue');
+  }
+
+  function handleCheckInChange(nextCheckIn: IsoDate | null): void {
     setCheckIn(nextCheckIn);
 
     if (
@@ -132,8 +166,8 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
     clearFieldError('checkOut');
   }
 
-  function handleCheckOutChange(event: ChangeEvent<HTMLInputElement>): void {
-    setCheckOut(event.target.value === '' ? null : event.target.value as IsoDate);
+  function handleCheckOutChange(nextCheckOut: IsoDate | null): void {
+    setCheckOut(nextCheckOut);
     clearFieldError('checkOut');
   }
 
@@ -169,10 +203,12 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
       apartmentSlug: selectedApartmentSlug,
       checkIn,
       checkOut,
+      guestEmail,
       guestName,
-      guestPhone,
       labels,
       locale,
+      preferredContactMethod,
+      preferredContactValue,
       source: 'home',
       todayIso
     });
@@ -193,10 +229,12 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
       apartmentSlug: selectedApartmentSlug,
       checkIn,
       checkOut,
+      guestEmail,
       guestName,
-      guestPhone,
       labels,
       locale,
+      preferredContactMethod,
+      preferredContactValue,
       source: 'home',
       todayIso
     });
@@ -218,8 +256,12 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
     window.requestAnimationFrame(() => {
       if (errorsToFocus.guestName) {
         guestNameRef.current?.focus();
-      } else if (errorsToFocus.guestPhone) {
-        guestPhoneRef.current?.focus();
+      } else if (errorsToFocus.guestEmail) {
+        guestEmailRef.current?.focus();
+      } else if (errorsToFocus.preferredContactMethod) {
+        preferredContactMethodRef.current?.focus();
+      } else if (errorsToFocus.preferredContactValue) {
+        preferredContactValueRef.current?.focus();
       } else if (errorsToFocus.checkIn) {
         checkInRef.current?.focus();
       } else if (errorsToFocus.checkOut) {
@@ -250,14 +292,20 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
               : code === 'control_characters'
                 ? labels.guestNameControlCharacters
                 : labels.requestValidationFailed;
-      } else if (field === 'guestPhone') {
-        nextErrors.guestPhone = code === 'required'
-          ? labels.guestPhoneRequired
-          : code === 'too_short'
-            ? labels.guestPhoneTooShort
-            : code === 'too_long'
-              ? labels.guestPhoneTooLong
-              : labels.guestPhoneFormat;
+      } else if (field === 'guestEmail') {
+        nextErrors.guestEmail = code === 'required'
+          ? labels.guestEmailRequired
+          : labels.guestEmailFormat;
+      } else if (field === 'preferredContactMethod') {
+        nextErrors.preferredContactMethod = labels.preferredContactMethodRequired;
+      } else if (field === 'preferredContactValue') {
+        nextErrors.preferredContactValue = code === 'required'
+          ? preferredContactMethod === 'whatsapp'
+            ? labels.whatsappNumberRequired
+            : labels.telegramUsernameRequired
+          : preferredContactMethod === 'whatsapp'
+            ? labels.whatsappNumberFormat
+            : labels.telegramUsernameFormat;
       } else if (field === 'checkIn') {
         nextErrors.checkIn = code === 'past' ? labels.checkInPast : labels.checkInRequired;
       } else if (field === 'checkOut') {
@@ -304,9 +352,12 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
 
   function resetForm(): void {
     setGuestName('');
-    setGuestPhone('');
+    setGuestEmail('');
+    setPreferredContactMethod('');
+    setPreferredContactValue('');
     setCheckIn(null);
     setCheckOut(null);
+    setOpenDatePicker(null);
     setSelectedApartmentSlug(null);
     setCaptchaAnswer('');
     setTouched(initialTouched);
@@ -315,6 +366,11 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
     setServerErrors({});
     setWebsite('');
     setSendStatus('idle');
+    try {
+      window.sessionStorage.removeItem(homeBookingDraftStorageKey);
+    } catch {
+      // Browser storage can be unavailable; reset the in-memory form regardless.
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -380,11 +436,18 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
       setServerErrors(fieldErrors);
       focusFirstError(fieldErrors);
     } else if (result.failure.kind === 'server' && (
-      result.failure.code === 'CAPTCHA_INVALID' || result.failure.code === 'CAPTCHA_REQUIRED'
+      result.failure.code === 'CAPTCHA_EXPIRED' ||
+      result.failure.code === 'CAPTCHA_INVALID' ||
+      result.failure.code === 'CAPTCHA_REQUIRED'
     )) {
       const captchaError = result.failure.code === 'CAPTCHA_REQUIRED'
         ? labels.captchaRequired
-        : labels.captchaInvalid;
+        : result.failure.code === 'CAPTCHA_EXPIRED'
+          ? labels.captchaExpired
+          : labels.captchaInvalid;
+      setCaptchaAnswer('');
+      setCaptchaChallengeId(null);
+      setCaptchaReloadToken((current) => current + 1);
       setServerErrors({captcha: captchaError});
       focusFirstError({captcha: captchaError});
     }
@@ -395,8 +458,14 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
   const guestNameError = (submitAttempted || touched.guestName)
     ? errors.guestName ?? serverErrors.guestName
     : undefined;
-  const guestPhoneError = (submitAttempted || touched.guestPhone)
-    ? errors.guestPhone ?? serverErrors.guestPhone
+  const guestEmailError = (submitAttempted || touched.guestEmail)
+    ? errors.guestEmail ?? serverErrors.guestEmail
+    : undefined;
+  const preferredContactMethodError = (submitAttempted || touched.preferredContactMethod)
+    ? errors.preferredContactMethod ?? serverErrors.preferredContactMethod
+    : undefined;
+  const preferredContactValueError = (submitAttempted || touched.preferredContactValue)
+    ? errors.preferredContactValue ?? serverErrors.preferredContactValue
     : undefined;
   const checkInError = (submitAttempted || touched.checkIn)
     ? errors.checkIn ?? serverErrors.checkIn
@@ -459,26 +528,80 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
                 </div>
               </div>
               <div className={styles.field}>
-                <label htmlFor="phone">{labels.guestPhoneLabel}</label>
+                <label htmlFor="email">{labels.guestEmailLabel}</label>
                 <input
-                  aria-describedby={guestPhoneError ? 'phoneError' : undefined}
-                  aria-invalid={guestPhoneError !== undefined}
-                  autoComplete="tel"
-                  id="phone"
-                  inputMode="tel"
-                  name="guest_phone_visible"
-                  onBlur={() => handleBlur('guestPhone')}
-                  onChange={handlePhoneChange}
-                  placeholder={labels.guestPhonePlaceholder}
-                  ref={guestPhoneRef}
+                  aria-describedby={guestEmailError ? 'emailError' : undefined}
+                  aria-invalid={guestEmailError !== undefined}
+                  autoComplete="email"
+                  id="email"
+                  name="guest_email_visible"
+                  onBlur={() => handleBlur('guestEmail')}
+                  onChange={handleEmailChange}
+                  placeholder={labels.guestEmailPlaceholder}
+                  ref={guestEmailRef}
                   required
-                  type="tel"
-                  value={guestPhone}
+                  type="email"
+                  value={guestEmail}
                 />
-                <div className={styles.error} id="phoneError" role={guestPhoneError ? 'alert' : undefined}>
-                  {guestPhoneError ?? ''}
+                <div className={styles.error} id="emailError" role={guestEmailError ? 'alert' : undefined}>
+                  {guestEmailError ?? ''}
                 </div>
               </div>
+              <div className={styles.field}>
+                <label htmlFor="preferredContactMethod">{labels.preferredContactMethodLabel}</label>
+                <select
+                  aria-describedby={preferredContactMethodError ? 'preferredContactMethodError' : undefined}
+                  aria-invalid={preferredContactMethodError !== undefined}
+                  className={styles.formSelect}
+                  id="preferredContactMethod"
+                  name="preferred_contact_method_visible"
+                  onBlur={() => handleBlur('preferredContactMethod')}
+                  onChange={handlePreferredContactMethodChange}
+                  ref={preferredContactMethodRef}
+                  required
+                  value={preferredContactMethod}
+                >
+                  <option disabled value="">{labels.preferredContactMethodPlaceholder}</option>
+                  <option value="email">{labels.emailOption}</option>
+                  <option value="whatsapp">{labels.whatsappOption}</option>
+                  <option value="telegram">{labels.telegramOption}</option>
+                </select>
+                <div className={styles.error} id="preferredContactMethodError" role={preferredContactMethodError ? 'alert' : undefined}>
+                  {preferredContactMethodError ?? ''}
+                </div>
+              </div>
+              {preferredContactMethod === 'whatsapp' || preferredContactMethod === 'telegram'
+                ? (
+                  <div className={styles.field}>
+                    <label htmlFor="preferredContactValue">
+                      {preferredContactMethod === 'whatsapp'
+                        ? labels.whatsappNumberLabel
+                        : labels.telegramUsernameLabel}
+                    </label>
+                    <input
+                      aria-describedby={preferredContactValueError ? 'preferredContactValueError' : undefined}
+                      aria-invalid={preferredContactValueError !== undefined}
+                      autoComplete={preferredContactMethod === 'whatsapp' ? 'tel' : 'off'}
+                      className={styles.formInput}
+                      id="preferredContactValue"
+                      inputMode={preferredContactMethod === 'whatsapp' ? 'tel' : 'text'}
+                      name="preferred_contact_value_visible"
+                      onBlur={() => handleBlur('preferredContactValue')}
+                      onChange={handlePreferredContactValueChange}
+                      placeholder={preferredContactMethod === 'whatsapp'
+                        ? labels.whatsappNumberPlaceholder
+                        : labels.telegramUsernamePlaceholder}
+                      ref={preferredContactValueRef}
+                      required
+                      type="text"
+                      value={preferredContactValue}
+                    />
+                    <div className={styles.error} id="preferredContactValueError" role={preferredContactValueError ? 'alert' : undefined}>
+                      {preferredContactValueError ?? ''}
+                    </div>
+                  </div>
+                )
+                : null}
             </div>
 
             <div className={styles.formCol}>
@@ -486,18 +609,23 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
               <div className={styles.formDates}>
                 <div className={styles.formDate}>
                   <label htmlFor="dateIn">{labels.checkInLabel}</label>
-                  <input
-                    aria-describedby={checkInError ? 'dateInError' : undefined}
-                    aria-invalid={checkInError !== undefined}
+                  <HomeDatePicker
+                    ariaDescribedBy={checkInError ? 'dateInError' : undefined}
                     id="dateIn"
+                    inputRef={checkInRef}
+                    isOpen={openDatePicker === 'checkIn'}
+                    label={labels.checkInLabel}
+                    labels={labels}
+                    locale={locale}
                     min={todayIso ?? undefined}
                     name="check_in_date"
                     onBlur={() => handleBlur('checkIn')}
                     onChange={handleCheckInChange}
-                    ref={checkInRef}
-                    required
-                    type="date"
-                    value={checkIn ?? ''}
+                    onClose={() => setOpenDatePicker(null)}
+                    onOpen={() => setOpenDatePicker('checkIn')}
+                    placeholder={labels.datePlaceholder}
+                    todayIso={todayIso}
+                    value={checkIn}
                   />
                   <div className={styles.error} id="dateInError" role={checkInError ? 'alert' : undefined}>
                     {checkInError ?? ''}
@@ -505,18 +633,23 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
                 </div>
                 <div className={styles.formDate}>
                   <label htmlFor="dateOut">{labels.checkOutLabel}</label>
-                  <input
-                    aria-describedby={checkOutError ? 'dateOutError' : undefined}
-                    aria-invalid={checkOutError !== undefined}
+                  <HomeDatePicker
+                    ariaDescribedBy={checkOutError ? 'dateOutError' : undefined}
                     id="dateOut"
+                    inputRef={checkOutRef}
+                    isOpen={openDatePicker === 'checkOut'}
+                    label={labels.checkOutLabel}
+                    labels={labels}
+                    locale={locale}
                     min={checkOutMin}
                     name="check_out_date"
                     onBlur={() => handleBlur('checkOut')}
                     onChange={handleCheckOutChange}
-                    ref={checkOutRef}
-                    required
-                    type="date"
-                    value={checkOut ?? ''}
+                    onClose={() => setOpenDatePicker(null)}
+                    onOpen={() => setOpenDatePicker('checkOut')}
+                    placeholder={labels.datePlaceholder}
+                    todayIso={todayIso}
+                    value={checkOut}
                   />
                   <div className={styles.error} id="dateOutError" role={checkOutError ? 'alert' : undefined}>
                     {checkOutError ?? ''}

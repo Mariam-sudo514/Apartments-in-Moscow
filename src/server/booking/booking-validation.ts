@@ -10,6 +10,7 @@ import {
 } from '@/lib/reservation/calendar';
 import type {IsoDate} from '@/types/reservation';
 import type {ValidatedBookingRequest} from '@/types/booking-api';
+import type {PreferredContactMethod} from '@/types/booking';
 
 const ALLOWED_KEYS = new Set([
   'adults',
@@ -19,20 +20,25 @@ const ALLOWED_KEYS = new Set([
   'children',
   'captchaAnswer',
   'captchaChallengeId',
+  'guestEmail',
   'guestName',
   'guestPhone',
   'locale',
+  'preferredContactMethod',
+  'preferredContactValue',
   'source',
   'website'
 ]);
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/u;
-const PHONE_CHARACTER_PATTERN = /^[+0-9() -]+$/u;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
+const WHATSAPP_CHARACTER_PATTERN = /^[+0-9() -]+$/u;
+const TELEGRAM_PATTERN = /^@[A-Za-z0-9_]{5,32}$/u;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/u;
 
 export type BookingValidationResult =
   | {
-      readonly captcha?: {
+      readonly captcha: {
         readonly answer: string;
         readonly challengeId: string;
       };
@@ -68,6 +74,29 @@ function getStringField(
   }
 
   const value = payload[field];
+
+  if (typeof value !== 'string') {
+    errors[field] = 'invalid_type';
+    return null;
+  }
+
+  return value;
+}
+
+function getNullableStringField(
+  payload: Record<string, unknown>,
+  field: string,
+  errors: Record<string, string>
+): string | null | undefined {
+  if (!hasOwn(payload, field)) {
+    return undefined;
+  }
+
+  const value = payload[field];
+
+  if (value === null) {
+    return null;
+  }
 
   if (typeof value !== 'string') {
     errors[field] = 'invalid_type';
@@ -125,7 +154,11 @@ function validateShape(payload: unknown): payload is Record<string, unknown> {
 
     const value = payload[key];
 
-    if (value === null || typeof value === 'object') {
+    if (value === null && key !== 'preferredContactValue') {
+      return false;
+    }
+
+    if (typeof value === 'object' && value !== null) {
       return false;
     }
   }
@@ -160,37 +193,101 @@ function validateName(
   return errors.guestName === undefined ? trimmed : null;
 }
 
-function validatePhone(
+function validateEmail(
   payload: Record<string, unknown>,
   errors: Record<string, string>
 ): string | null {
-  const value = getStringField(payload, 'guestPhone', errors);
+  const value = getStringField(payload, 'guestEmail', errors);
 
   if (value === null) {
     return null;
   }
 
   const normalized = value.trim();
-  const digits = normalized.replace(/[^0-9]/gu, '');
-  const plusCount = (normalized.match(/\+/gu) ?? []).length;
 
   if (normalized.length === 0) {
-    errors.guestPhone = 'required';
-  } else if (CONTROL_CHARACTER_PATTERN.test(value)) {
-    errors.guestPhone = 'invalid_format';
+    errors.guestEmail = 'required';
   } else if (
-    !PHONE_CHARACTER_PATTERN.test(normalized) ||
-    plusCount > 1 ||
-    (plusCount === 1 && !normalized.startsWith('+'))
+    normalized.length > 254 ||
+    CONTROL_CHARACTER_PATTERN.test(value) ||
+    !EMAIL_PATTERN.test(normalized)
   ) {
-    errors.guestPhone = 'invalid_format';
-  } else if (digits.length < 7) {
-    errors.guestPhone = 'too_short';
-  } else if (digits.length > 15) {
-    errors.guestPhone = 'too_long';
+    errors.guestEmail = 'invalid_format';
   }
 
-  return errors.guestPhone === undefined ? normalized : null;
+  return errors.guestEmail === undefined ? normalized : null;
+}
+
+function validatePreferredContactMethod(
+  payload: Record<string, unknown>,
+  errors: Record<string, string>
+): PreferredContactMethod | null {
+  const value = getStringField(payload, 'preferredContactMethod', errors);
+
+  if (value === null) {
+    return null;
+  }
+
+  if (value !== 'email' && value !== 'whatsapp' && value !== 'telegram') {
+    errors.preferredContactMethod = 'invalid_value';
+    return null;
+  }
+
+  return value;
+}
+
+function getPreferredContactValue(
+  payload: Record<string, unknown>,
+  errors: Record<string, string>
+): string | null | undefined {
+  return getNullableStringField(payload, 'preferredContactValue', errors);
+}
+
+function validatePreferredContactValue(
+  method: PreferredContactMethod | null,
+  value: string | null | undefined,
+  errors: Record<string, string>
+): string | null {
+  if (method === null) {
+    return null;
+  }
+
+  if (method === 'email') {
+    if (value !== undefined && value !== null) {
+      errors.preferredContactValue = 'not_allowed';
+    }
+    return null;
+  }
+
+  if (value === undefined || value === null || value.trim().length === 0) {
+    errors.preferredContactValue = 'required';
+    return null;
+  }
+
+  const normalized = value.trim();
+
+  if (CONTROL_CHARACTER_PATTERN.test(value)) {
+    errors.preferredContactValue = 'invalid_format';
+    return null;
+  }
+
+  if (method === 'whatsapp') {
+    const compact = normalized.replace(/[ ()-]/gu, '');
+
+    if (!WHATSAPP_CHARACTER_PATTERN.test(normalized) || !/^\+[0-9]{7,15}$/u.test(compact)) {
+      errors.preferredContactValue = 'invalid_format';
+      return null;
+    }
+
+    return compact;
+  }
+
+  if (!TELEGRAM_PATTERN.test(normalized)) {
+    errors.preferredContactValue = 'invalid_format';
+    return null;
+  }
+
+  return normalized;
 }
 
 function validateIntegerField(
@@ -236,7 +333,6 @@ export function validateBookingPayload(
   const sourceValue = getStringField(payload, 'source', errors);
   const localeValue = getStringField(payload, 'locale', errors);
   const guestName = validateName(payload, errors);
-  const guestPhone = validatePhone(payload, errors);
   const apartmentSlugValue = getStringField(payload, 'apartmentSlug', errors);
   const checkIn = parseDateField(payload, 'checkIn', errors);
   const checkOut = parseDateField(payload, 'checkOut', errors);
@@ -278,17 +374,69 @@ export function validateBookingPayload(
 
   let adults: number | null = null;
   let children: number | null = null;
+  let guestEmail: string | null = null;
+  let preferredContactMethod: PreferredContactMethod | null = null;
+  let preferredContactValue: string | null = null;
   let captcha: {readonly answer: string; readonly challengeId: string} | undefined;
+
+  const captchaChallengeId = getStringField(payload, 'captchaChallengeId', errors);
+  const captchaAnswer = getStringField(payload, 'captchaAnswer', errors);
+
+  if (captchaChallengeId !== null && captchaChallengeId.length === 0) {
+    errors.captchaChallengeId = 'required';
+  }
+
+  if (captchaAnswer !== null && captchaAnswer.trim().length === 0) {
+    errors.captchaAnswer = 'required';
+  }
+
+  if (captchaChallengeId !== null && captchaChallengeId.length > 200) {
+    errors.captchaChallengeId = 'too_long';
+  }
+
+  if (captchaChallengeId !== null && CONTROL_CHARACTER_PATTERN.test(captchaChallengeId)) {
+    errors.captchaChallengeId = 'control_characters';
+  }
+
+  if (captchaAnswer !== null && captchaAnswer.trim().length > 32) {
+    errors.captchaAnswer = 'too_long';
+  }
+
+  if (captchaAnswer !== null && CONTROL_CHARACTER_PATTERN.test(captchaAnswer)) {
+    errors.captchaAnswer = 'control_characters';
+  }
+
+  if (
+    captchaChallengeId !== null &&
+    captchaAnswer !== null &&
+    captchaChallengeId.length > 0 &&
+    captchaAnswer.trim().length > 0 &&
+    errors.captchaChallengeId === undefined &&
+    errors.captchaAnswer === undefined
+  ) {
+    captcha = {
+      answer: captchaAnswer,
+      challengeId: captchaChallengeId
+    };
+  }
+
+  if (sourceValue === 'reservation' || sourceValue === 'home') {
+    guestEmail = validateEmail(payload, errors);
+    preferredContactMethod = validatePreferredContactMethod(payload, errors);
+    preferredContactValue = validatePreferredContactValue(
+      preferredContactMethod,
+      getPreferredContactValue(payload, errors),
+      errors
+    );
+
+    if (hasOwn(payload, 'guestPhone')) {
+      errors.guestPhone = 'not_allowed';
+    }
+  }
 
   if (sourceValue === 'reservation') {
     adults = validateIntegerField(payload, 'adults', 1, 10, errors);
     children = validateIntegerField(payload, 'children', 0, 10, errors);
-    if (hasOwn(payload, 'captchaAnswer')) {
-      errors.captchaAnswer = 'not_allowed';
-    }
-    if (hasOwn(payload, 'captchaChallengeId')) {
-      errors.captchaChallengeId = 'not_allowed';
-    }
   } else if (sourceValue === 'home') {
     if (hasOwn(payload, 'adults')) {
       errors.adults = 'not_allowed';
@@ -297,30 +445,6 @@ export function validateBookingPayload(
       errors.children = 'not_allowed';
     }
 
-    const captchaChallengeId = getStringField(payload, 'captchaChallengeId', errors);
-    const captchaAnswer = getStringField(payload, 'captchaAnswer', errors);
-
-    if (captchaChallengeId !== null && captchaChallengeId.length === 0) {
-      errors.captchaChallengeId = 'required';
-    }
-
-    if (captchaAnswer !== null && captchaAnswer.trim().length === 0) {
-      errors.captchaAnswer = 'required';
-    }
-
-    if (captchaChallengeId !== null && captchaAnswer !== null &&
-      captchaChallengeId.length > 200) {
-      errors.captchaChallengeId = 'too_long';
-    }
-
-    if (captchaChallengeId !== null && captchaAnswer !== null &&
-      captchaChallengeId.length > 0 && captchaAnswer.trim().length > 0 &&
-      errors.captchaChallengeId === undefined && errors.captchaAnswer === undefined) {
-      captcha = {
-        answer: captchaAnswer,
-        challengeId: captchaChallengeId
-      };
-    }
   }
 
   if (Object.keys(errors).length > 0) {
@@ -331,7 +455,6 @@ export function validateBookingPayload(
     sourceValue === null ||
     localeValue === null ||
     guestName === null ||
-    guestPhone === null ||
     apartmentSlug === null ||
     checkIn === null ||
     checkOut === null
@@ -343,28 +466,51 @@ export function validateBookingPayload(
     return {fields: {request: 'invalid'}, kind: 'validation_failed', ok: false};
   }
 
+  if (
+    (sourceValue === 'reservation' || sourceValue === 'home') &&
+    (guestEmail === null ||
+      preferredContactMethod === null ||
+      preferredContactMethod === undefined ||
+      preferredContactValue === undefined)
+  ) {
+    return {fields: {request: 'invalid'}, kind: 'validation_failed', ok: false};
+  }
+
+  if (captcha === undefined) {
+    return {fields: {request: 'invalid'}, kind: 'validation_failed', ok: false};
+  }
+
   const base = {
     apartmentSlug,
     checkIn,
     checkOut,
     guestName,
-    guestPhone,
     locale: localeValue as 'ru' | 'en'
   };
 
   return sourceValue === 'reservation'
     ? {
-        ok: true,
-        request: createBookingRequestDraft({
+      ok: true,
+      request: createBookingRequestDraft({
           ...base,
           adults: adults as number,
           children: children as number,
+          guestEmail: guestEmail as string,
+          preferredContactMethod: preferredContactMethod as PreferredContactMethod,
+          preferredContactValue,
           source: 'reservation'
-        })
+        }),
+        captcha
       }
     : {
-        captcha,
+      captcha,
         ok: true,
-        request: createBookingRequestDraft({...base, source: 'home'})
+      request: createBookingRequestDraft({
+        ...base,
+        guestEmail: guestEmail as string,
+        preferredContactMethod: preferredContactMethod as PreferredContactMethod,
+        preferredContactValue,
+        source: 'home'
+      })
       };
 }

@@ -24,6 +24,68 @@
   line-height: 1.5;
 }
 
+.captchaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.captchaRow img {
+  display: block;
+  flex: 0 0 120px;
+  width: 120px;
+  height: 40px;
+  border-radius: 4px;
+}
+
+.captchaRow button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #191919;
+  cursor: pointer;
+  font-size: 25px;
+  line-height: 1;
+}
+
+.captchaInput {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  /* min-width: 120px; */
+  max-width: 140px;
+  min-height: 40px;
+  padding: 10px 12px;
+  border: 1px solid #cccccc;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #191919;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 16px;
+}
+
+.captchaInput:focus-visible,
+.captchaRow button:focus-visible {
+  outline: 3px solid rgb(255 152 157 / 45%);
+  outline-offset: 2px;
+}
+
+.captchaError {
+  flex-basis: 100%;
+  margin-top: 2px;
+  color: #b42318;
+  font-family: var(--font-roboto), sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .fieldGroup {
   margin-bottom: 16px;
 }
@@ -47,6 +109,22 @@
   color: #333333;
   font-family: var(--font-roboto), sans-serif;
   font-size: 14px;
+}
+
+.formSelect {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: white url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+  background-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.formSelect:focus {
+  border-color: #ccc;
+  outline: none;
 }
 
 .input:focus-visible {
@@ -95,7 +173,7 @@
   text-decoration: underline;
 }
 
-.reviewButton {
+.submitButton {
   min-height: 44px;
   margin-top: 4px;
   padding: 12px 24px;
@@ -108,33 +186,25 @@
   font-weight: 600;
 }
 
-.reviewButton:hover,
-.reviewButton:focus-visible {
+.submitButton:hover,
+.submitButton:focus-visible {
   background-color: #ff5f67;
 }
 
-.reviewButton:disabled {
+.submitButton:disabled {
   border-color: #d6d6d6;
   background-color: #e8e8e8;
   color: #777777;
   cursor: not-allowed;
 }
 
-.reviewButton:focus-visible,
+.submitButton:focus-visible,
 .errorSummaryList a:focus-visible {
   outline: 3px solid rgb(255 152 157 / 35%);
   outline-offset: 2px;
 }
 
-.disabledHint {
-  margin-top: 8px;
-  color: #666666;
-  font-family: var(--font-roboto), sans-serif;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.reviewedMessage {
+.successMessage {
   margin-top: 16px;
   padding: 12px 14px;
   border: 1px solid #ff989d;
@@ -151,14 +221,27 @@
     padding: 16px;
   }
 
-  .reviewButton {
+  .submitButton {
     width: 100%;
+  }
+}
+
+@media (max-width: 399px) {
+  /* Reservation CAPTCHA wrapping */
+  .captchaRow {
+    flex-wrap: wrap;
+  }
+
+  .captchaInput {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .input,
-  .reviewButton {
+  .submitButton {
     transition: none;
   }
 }

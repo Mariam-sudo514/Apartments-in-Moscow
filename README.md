@@ -8,7 +8,7 @@ Moscow Apartments is a Next.js foundation for the staged migration of a legacy a
 
 Stage 4A adds a typed apartment data foundation for all 12 legacy properties. RU/EN catalog and detail data, price modes, source provenance, map embeds, cover paths, and ordered gallery manifests are prepared in `src/data/apartments` using the shared domain types in `src/types/apartment.ts`. Stage 4B migrates the RU/EN apartment catalog and all 12 localized detail routes, with static slug generation, localized metadata, semantic breadcrumbs, responsive detail layouts, keyboard-accessible galleries, lazy map embeds, and the 108 source gallery images copied byte-for-byte into `public/images/apartments`. Stage 5 restores the Home apartment carousel with local `swiper@14.1.0`, 12 data-driven slides, loop, five-second autoplay, hover pause, keyboard and touch navigation, clickable dynamic pagination, and responsive 1/2/3-slide layouts. Stage 6 migrates the full RU/EN Contacts page with localized metadata, safe placeholder contact links from `src/config/social-links.ts`, and a CSS/icon visual contact panel. Stage 7A adds localized reservation date, guest, and apartment selection with a responsive keyboard-accessible calendar and preliminary client-side price calculation. Stage 7B adds localized reservation contact fields, strict client-side validation, and a typed in-memory booking request draft; the review control never sends data or creates a network request. Stage 7C and Stage 10B.2 add the Home booking workflow on `/` and `/en` with localized contact, native date, typed apartment selection, strict local validation, Moscow-date readiness, a local CAPTCHA challenge, the existing honeypot, and one main submit action. Stage 8A adds a `POST /api/booking` Route Handler with strict JSON, request-origin and Fetch Metadata checks, server-side validation, trusted typed-data quotes, an 8 KiB streaming body limit, and an in-memory fixed-window rate limiter. The Stage 7A total uses typed apartment prices but is not server-authoritative. The Contacts page uses a user-supplied replacement QR and neutral display values in place of legacy contact data. Stage 3 static Home sections remain implemented: the Hero, Why Choose Us feature cards, and the static Contacts teaser. Stage 2 shared responsive Header/Footer, local Montserrat/Roboto fonts, RU/EN navigation, the Footer language switch, and safe placeholder social links remain in place.
 
-The prepared translations and catalog/detail discrepancies require later content review. The reservation form keeps its typed request draft in memory, while the Home form submits its validated fields through the local-only booking delivery workflow. The API repeats validation, recalculates a trusted quote, and verifies the Home CAPTCHA before handing the request to Nodemailer and Mailpit. Stage 7A and client-side form totals remain preliminary and are not server-authoritative. The local CAPTCHA uses an opaque challenge id, a short-lived in-memory store, limited attempts, and one-time successful verification. Contacts use the user-supplied replacement QR, neutral display values instead of legacy phone, email, and handle data, and safe example.com action links. The apartment gallery is implemented separately from the Home carousel.
+The prepared translations and catalog/detail discrepancies require later content review. The reservation form keeps its typed request draft in memory, while the Home form submits its validated fields through the booking delivery workflow. The API repeats validation, recalculates a trusted quote, and verifies the CAPTCHA before handing the request to the configured Nodemailer transport. Stage 7A and client-side form totals remain preliminary and are not server-authoritative. The local CAPTCHA uses an opaque challenge id, a short-lived in-memory store, limited attempts, and one-time successful verification. Contacts use the user-supplied replacement QR, neutral display values instead of legacy phone, email, and handle data, and safe example.com action links. The apartment gallery is implemented separately from the Home carousel.
 
 ## Technology stack
 
@@ -31,7 +31,7 @@ The prepared translations and catalog/detail discrepancies require later content
 npm install
 ```
 
-Copy `.env.example` to `.env.local` when a local public site URL is needed. The current example contains no credentials or mail configuration.
+Copy `.env.example` to `.env.local` when a local public site URL or safe mail configuration example is needed. The tracked example contains placeholders only; never commit local SMTP credentials.
 
 ## Development
 
@@ -87,14 +87,14 @@ The shared Header and Footer use the existing responsive contract, including the
 
 ## Booking API
 
-The `POST /api/booking` endpoint accepts strict JSON requests up to 8 KiB, requires an exact configured origin plus the `X-Booking-Request: 1` header, validates Fetch Metadata when present, and applies a fixed-window in-memory rate limiter. The documented local defaults are five requests per 60 seconds with `BOOKING_TRUST_PROXY=false`; proxy-derived client addresses are used only when explicitly enabled. Home requests additionally require a local CAPTCHA challenge and answer; invalid, expired, repeated, or unknown challenges are rejected before delivery. Stage 8B connects Home and reservation requests to local-only Nodemailer delivery through Mailpit. The API repeats validation, recalculates a trusted quote from typed apartment data, and sends a plain-text message to the safe `landlord@example.test` placeholder. No booking data is stored, and the client-side quote remains preliminary rather than server-authoritative.
+The `POST /api/booking` endpoint accepts strict JSON requests up to 8 KiB, requires an exact configured origin plus the `X-Booking-Request: 1` header, validates Fetch Metadata when present, and applies short burst and sustained in-memory rate limits. The documented local defaults are five requests per 60 seconds with a three-request burst window and `BOOKING_TRUST_PROXY=false`; when a deployment explicitly enables a trusted proxy, the forwarded client address is keyed with HMAC-SHA256 using the server-only `BOOKING_RATE_LIMIT_SECRET`. That mode requires a reverse proxy that strips untrusted forwarding headers before setting its own value; the application does not infer a trustworthy proxy from a client-supplied header. Home and Reservation requests require an individual CAPTCHA challenge and answer; invalid, expired, repeated, or unknown challenges are rejected before delivery. Stage 8B connects both forms to a configured Nodemailer transport in `disabled`, `mailpit`, or explicit `smtp` mode. The API repeats validation, recalculates a trusted quote from typed apartment data, and sends a plain-text message to the configured recipient. The app does not persist booking data: form values exist only in React state while the page is open and the configured mail provider retains the accepted message. Browser autofill is controlled by the browser and is outside application storage. The client-side quote remains preliminary rather than server-authoritative.
 
 ## Local booking delivery
 
-Stage 8B uses `nodemailer@9.0.3` and Docker Compose for local delivery only. The web container uses the pinned `node:22.22.0-bookworm-slim` image and connects to the pinned `axllent/mailpit:v1.30.0` service over the internal Docker network. SMTP port `1025` is not published to the host; the Mailpit UI is available only at `http://127.0.0.1:8025`. Mail is sent from `bookings@example.test` to `landlord@example.test`, with no real recipients, credentials, or external SMTP relay.
+Stage 8B uses `nodemailer@9.0.3` and Docker Compose for local delivery. The default Compose mode is Mailpit: the web container uses the pinned `node:22.22.0-bookworm-slim` image and connects to the pinned `axllent/mailpit:v1.30.0` service over the internal Docker network. SMTP port `1025` is not published to the host; the Mailpit UI is available only at `http://127.0.0.1:8025`. The server also supports an explicit `smtp` mode using only server-side `BOOKING_SMTP_*` and `BOOKING_MAIL_*` environment variables; incomplete or unknown configurations fail closed, and credentials must remain in an ignored local env file.
 
 ```bash
-docker compose config
+docker compose config --quiet
 docker compose build
 docker compose up -d
 docker compose ps
@@ -102,7 +102,7 @@ docker compose logs --no-log-prefix web
 docker compose down
 ```
 
-The application is available at `http://127.0.0.1:3000`, Mailpit at `http://127.0.0.1:8025`, and the health endpoint at `http://127.0.0.1:3000/api/health`. The Mailpit service has no persistent volume, so local messages are intentionally ephemeral. Production SMTP, real recipients, booking persistence, and the production booking workflow are not implemented.
+The application is available at `http://127.0.0.1:3000`, Mailpit at `http://127.0.0.1:8025`, and the health endpoint at `http://127.0.0.1:3000/api/health`. The Mailpit service has no persistent volume, so local messages are intentionally ephemeral. SMTP mode is implemented but requires locally supplied credentials; no real Gmail delivery is claimed until a user confirms receipt. Booking persistence and a production booking workflow remain outside this local delivery stage.
 
 ## SEO and legacy URL migration
 
@@ -133,7 +133,7 @@ Every RU and EN indexable route now has localized title and description metadata
 
 ## Future work
 
-The current local anti-abuse layer includes exact-origin and Fetch Metadata checks, the required request header, an 8 KiB body limit, a honeypot, a short-lived one-time CAPTCHA challenge for Home submissions, and an in-memory rate limiter. Future production work requires a final CAPTCHA or Turnstile decision, persistent or distributed rate limiting, production SMTP delivery and secret management, booking persistence and idempotency, monitoring, legacy redirects, and the final SEO, accessibility, and regression review.
+The current local anti-abuse layer includes exact-origin and Fetch Metadata checks, the required request header, an 8 KiB body limit, a honeypot, a short-lived one-time CAPTCHA challenge for Home and Reservation submissions, and an in-memory rate limiter. Future production work requires a final CAPTCHA or Turnstile decision, persistent or distributed rate limiting, production secret management, booking persistence and idempotency, monitoring, legacy redirects, and the final SEO, accessibility, and regression review.
 
 ## Quality audit
 

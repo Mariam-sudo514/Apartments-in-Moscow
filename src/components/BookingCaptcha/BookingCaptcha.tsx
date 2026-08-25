@@ -8,6 +8,7 @@ type BookingCaptchaProps = {
   readonly error?: string;
   readonly errorClassName: string;
   readonly errorId: string;
+  readonly imageId?: string;
   readonly inputId: string;
   readonly inputClassName: string;
   readonly inputRef: RefObject<HTMLInputElement | null>;
@@ -16,9 +17,11 @@ type BookingCaptchaProps = {
   readonly onBlur: (event: FocusEvent<HTMLInputElement>) => void;
   readonly onChallengeChange: (challengeId: string | null) => void;
   readonly onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  readonly onRefresh?: () => void;
   readonly placeholder: string;
   readonly reloadToken: number;
   readonly refreshLabel: string;
+  readonly refreshButtonId?: string;
   readonly rowClassName: string;
   readonly value: string;
 };
@@ -28,6 +31,7 @@ export function BookingCaptcha({
   error,
   errorClassName,
   errorId,
+  imageId = 'captchaHome',
   inputId,
   inputClassName,
   inputRef,
@@ -36,9 +40,11 @@ export function BookingCaptcha({
   onBlur,
   onChallengeChange,
   onChange,
+  onRefresh,
   placeholder,
   reloadToken,
   refreshLabel,
+  refreshButtonId = 'refreshHomeCaptcha',
   rowClassName,
   value
 }: BookingCaptchaProps) {
@@ -105,12 +111,15 @@ export function BookingCaptcha({
       {imageUrl !== null ? (
         // CAPTCHA is a runtime blob URL, so next/image cannot replace this native image.
         // eslint-disable-next-line @next/next/no-img-element -- the API returns a dynamic CAPTCHA blob.
-        <img alt={alt} id="captchaHome" src={imageUrl} />
+        <img alt={alt} id={imageId} src={imageUrl} />
       ) : null}
       <button
         aria-label={refreshLabel}
-        id="refreshHomeCaptcha"
-        onClick={() => setRefreshToken((current) => current + 1)}
+        id={refreshButtonId}
+        onClick={() => {
+          onRefresh?.();
+          setRefreshToken((current) => current + 1);
+        }}
         type="button"
       >
         ⟳

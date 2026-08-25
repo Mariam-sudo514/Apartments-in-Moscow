@@ -9,11 +9,16 @@ export {
 } from './booking-body';
 export {
   getBookingServerConfig,
+  getRateLimitSecret,
   isBookingRequestAllowed,
   type BookingServerConfig
 } from './booking-origin';
 export {
+  BOOKING_BURST_LIMIT,
+  BOOKING_BURST_WINDOW_MS,
+  RATE_LIMIT_MAX_ENTRIES,
   bookingRateLimiter,
+  bookingBurstRateLimiter,
   FixedWindowRateLimiter,
   getBookingRateLimitKey
 } from './booking-rate-limit';

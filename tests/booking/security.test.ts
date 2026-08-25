@@ -1,3 +1,5 @@
+import {createHmac} from 'node:crypto';
+
 import {describe, expect, it} from 'vitest';
 
 import {
@@ -7,13 +9,19 @@ import {
   FixedWindowRateLimiter,
   getBookingRateLimitKey,
   getBookingServerConfig,
+  getRateLimitSecret,
   isBookingRequestAllowed,
   isJsonContentType,
+  RATE_LIMIT_MAX_ENTRIES,
   readJsonBody
 } from '@/server/booking';
+import {TEST_RATE_LIMIT_SECRET} from './test-fixtures';
 
 function getConfig(environment: Record<string, string | undefined>) {
-  const result = getBookingServerConfig(environment);
+  const result = getBookingServerConfig({
+    BOOKING_RATE_LIMIT_SECRET: TEST_RATE_LIMIT_SECRET,
+    ...environment
+  });
 
   expect(result.ok).toBe(true);
 
@@ -59,13 +67,44 @@ describe('booking request security helpers', () => {
     }
     expect(getBookingServerConfig({
       BOOKING_ALLOWED_ORIGINS: 'https://example.test,https://example.test',
+      BOOKING_RATE_LIMIT_SECRET: TEST_RATE_LIMIT_SECRET,
       BOOKING_RATE_LIMIT_MAX: '10',
       BOOKING_RATE_LIMIT_WINDOW_MS: '1000',
       BOOKING_TRUST_PROXY: 'true'
     })).toMatchObject({ok: true});
+    expect(getBookingServerConfig({
+      BOOKING_ALLOWED_ORIGINS: 'https://example.test',
+      NODE_ENV: 'production'
+    }).ok).toBe(false);
+    expect(getBookingServerConfig({
+      BOOKING_ALLOWED_ORIGINS: 'https://example.test',
+      BOOKING_RATE_LIMIT_SECRET: TEST_RATE_LIMIT_SECRET,
+      NODE_ENV: 'production'
+    }).ok).toBe(true);
     expect(getBookingServerConfig({BOOKING_ALLOWED_ORIGINS: 'https://example.test', BOOKING_RATE_LIMIT_MAX: '0'}).ok).toBe(false);
     expect(getBookingServerConfig({BOOKING_ALLOWED_ORIGINS: 'https://example.test', BOOKING_RATE_LIMIT_WINDOW_MS: 'not-a-number'}).ok).toBe(false);
     expect(getBookingServerConfig({BOOKING_ALLOWED_ORIGINS: 'https://example.test', BOOKING_TRUST_PROXY: 'yes'}).ok).toBe(false);
+  });
+
+  it('requires an exact 64-hex secret outside the test runtime', () => {
+    expect(getRateLimitSecret({NODE_ENV: 'development'})).toBeNull();
+    expect(getRateLimitSecret({
+      BOOKING_RATE_LIMIT_SECRET: 'a'.repeat(63),
+      NODE_ENV: 'production'
+    })).toBeNull();
+    expect(getRateLimitSecret({
+      BOOKING_RATE_LIMIT_SECRET: 'not-a-secret',
+      NODE_ENV: 'production'
+    })).toBeNull();
+    expect(getRateLimitSecret({
+      BOOKING_RATE_LIMIT_SECRET: `${'a'.repeat(64)} `,
+      NODE_ENV: 'production'
+    })).toBeNull();
+
+    const testSecret = getRateLimitSecret({NODE_ENV: 'test'});
+
+    expect(testSecret).toMatch(/^[a-f0-9]{64}$/u);
+    expect(getRateLimitSecret({NODE_ENV: 'test'})).toBe(testSecret);
   });
 
   it('requires the booking header, same-origin Fetch Metadata and strict Referer fallback', () => {
@@ -157,15 +196,36 @@ describe('booking request security helpers', () => {
     now = 2_000;
     expect(limiter.consume('client', 2, 1_000)).toEqual({allowed: true});
     expect(limiter.size()).toBe(1);
-    expect(getBookingRateLimitKey(new Request('https://example.test', {
+    const hashedKey = getBookingRateLimitKey(new Request('https://example.test', {
       headers: {'x-forwarded-for': '203.0.113.10, 10.0.0.1'}
-    }), true)).toBe('forwarded:203.0.113.10');
-    expect(getBookingRateLimitKey(request(), false)).toBe('single-process-fallback');
+    }), true, TEST_RATE_LIMIT_SECRET);
+    const expectedHmac = createHmac('sha256', TEST_RATE_LIMIT_SECRET)
+      .update('203.0.113.10', 'utf8')
+      .digest('hex');
+
+    expect(hashedKey).toBe(`forwarded:${expectedHmac}`);
+    expect(hashedKey).toMatch(/^forwarded:[a-f0-9]{64}$/u);
+    expect(hashedKey).not.toContain('203.0.113.10');
+    expect(getBookingRateLimitKey(request(), false, null)).toBe('single-process-fallback');
     expect(getBookingRateLimitKey(new Request('https://example.test', {
       headers: {'x-forwarded-for': '   '}
-    }), true)).toBe('forwarded:unknown');
+    }), true, TEST_RATE_LIMIT_SECRET)).toBe('forwarded:unknown');
     expect(getBookingRateLimitKey(new Request('https://example.test', {
       headers: {'x-forwarded-for': 'x'.repeat(129)}
-    }), true)).toBe('forwarded:unknown');
+    }), true, TEST_RATE_LIMIT_SECRET)).toBe('forwarded:unknown');
+
+    const untrustedHeaders = (address: string) => new Request('https://example.test', {
+      headers: {'x-forwarded-for': address}
+    });
+    expect(getBookingRateLimitKey(untrustedHeaders('203.0.113.10'), false, null))
+      .toBe(getBookingRateLimitKey(untrustedHeaders('203.0.113.11'), false, null));
+
+    const bounded = new FixedWindowRateLimiter(() => now);
+
+    for (let index = 0; index < 10_001; index += 1) {
+      bounded.consume(`client-${index}`, 1, 1_000);
+    }
+
+    expect(bounded.size()).toBeLessThanOrEqual(RATE_LIMIT_MAX_ENTRIES);
   });
 });

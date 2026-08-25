@@ -5,20 +5,28 @@ import {
 import type {
   BookingDraftResult,
   BookingFieldErrors,
-  BookingValidationInput
+  BookingValidationInput,
+  PreferredContactMethod
 } from '@/types/booking';
 
 import {createBookingRequestDraft} from './booking-payload';
 
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F]/u;
-const PHONE_CHARACTER_PATTERN = /^[+0-9() -]+$/u;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
+const WHATSAPP_CHARACTER_PATTERN = /^[+0-9() -]+$/u;
+const TELEGRAM_PATTERN = /^@[A-Za-z0-9_]{5,32}$/u;
 
 function countCharacters(value: string): number {
   return Array.from(value).length;
 }
 
-export function getPhoneDigits(value: string): string {
-  return value.replace(/\D/gu, '');
+function normalizeWhatsApp(value: string): string | null {
+  const trimmed = value.trim();
+  const normalized = trimmed.replace(/[ ()-]/gu, '');
+
+  return WHATSAPP_CHARACTER_PATTERN.test(trimmed) && /^\+[0-9]{7,15}$/u.test(normalized)
+    ? normalized
+    : null;
 }
 
 export function validateBooking(
@@ -30,10 +38,7 @@ export function validateBooking(
 export function validateBooking(input: BookingValidationInput): BookingDraftResult {
   const errors: Partial<Record<keyof BookingFieldErrors, string>> = {};
   const guestName = input.guestName.trim();
-  const guestPhone = input.guestPhone.trim();
   const guestNameLength = countCharacters(guestName);
-  const phoneDigits = getPhoneDigits(guestPhone);
-  const plusCount = (guestPhone.match(/\+/gu) ?? []).length;
   const nights = getNights(input.checkIn, input.checkOut);
 
   if (guestName.length === 0) {
@@ -46,18 +51,47 @@ export function validateBooking(input: BookingValidationInput): BookingDraftResu
     errors.guestName = input.labels.guestNameTooLong;
   }
 
-  if (guestPhone.length === 0) {
-    errors.guestPhone = input.labels.guestPhoneRequired;
+  const guestEmail = input.guestEmail.trim();
+  let preferredContactMethod: PreferredContactMethod | undefined;
+  let preferredContactValue: string | null = null;
+
+  const contactValue = input.preferredContactValue.trim();
+
+  if (guestEmail.length === 0) {
+    errors.guestEmail = input.labels.guestEmailRequired;
   } else if (
-    !PHONE_CHARACTER_PATTERN.test(guestPhone) ||
-    plusCount > 1 ||
-    (plusCount === 1 && !guestPhone.startsWith('+'))
+    guestEmail.length > 254 ||
+    CONTROL_CHARACTER_PATTERN.test(guestEmail) ||
+    !EMAIL_PATTERN.test(guestEmail)
   ) {
-    errors.guestPhone = input.labels.guestPhoneFormat;
-  } else if (phoneDigits.length < 7) {
-    errors.guestPhone = input.labels.guestPhoneTooShort;
-  } else if (phoneDigits.length > 15) {
-    errors.guestPhone = input.labels.guestPhoneTooLong;
+    errors.guestEmail = input.labels.guestEmailFormat;
+  }
+
+  if (input.preferredContactMethod === '') {
+    errors.preferredContactMethod = input.labels.preferredContactMethodRequired;
+  } else {
+    preferredContactMethod = input.preferredContactMethod;
+
+    if (preferredContactMethod === 'email') {
+      if (contactValue.length > 0) {
+        errors.preferredContactValue = input.labels.preferredContactValueFormat;
+      }
+    } else if (preferredContactMethod === 'whatsapp') {
+      if (contactValue.length === 0) {
+        errors.preferredContactValue = input.labels.whatsappNumberRequired;
+      } else {
+        preferredContactValue = normalizeWhatsApp(contactValue);
+        if (preferredContactValue === null) {
+          errors.preferredContactValue = input.labels.whatsappNumberFormat;
+        }
+      }
+    } else if (contactValue.length === 0) {
+      errors.preferredContactValue = input.labels.telegramUsernameRequired;
+    } else if (!TELEGRAM_PATTERN.test(contactValue)) {
+      errors.preferredContactValue = input.labels.telegramUsernameFormat;
+    } else {
+      preferredContactValue = contactValue;
+    }
   }
 
   if (input.todayIso === null) {
@@ -116,7 +150,6 @@ export function validateBooking(input: BookingValidationInput): BookingDraftResu
     checkIn: input.checkIn,
     checkOut: input.checkOut,
     guestName,
-    guestPhone,
     locale: input.locale
   };
 
@@ -130,14 +163,27 @@ export function validateBooking(input: BookingValidationInput): BookingDraftResu
         ...base,
         adults: input.adults,
         children: input.children,
+        guestEmail,
+        preferredContactMethod: preferredContactMethod as PreferredContactMethod,
+        preferredContactValue,
         source: input.source
       }),
       ok: true
     };
   }
 
+  if (guestEmail === undefined || preferredContactMethod === undefined) {
+    return {errors: {reservation: input.labels.reservationIncomplete}, ok: false};
+  }
+
   return {
-    draft: createBookingRequestDraft({...base, source: input.source}),
+    draft: createBookingRequestDraft({
+      ...base,
+      guestEmail,
+      preferredContactMethod,
+      preferredContactValue,
+      source: input.source
+    }),
     ok: true
   };
 }

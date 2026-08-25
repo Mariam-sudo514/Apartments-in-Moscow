@@ -10,8 +10,10 @@ function homePayload(overrides: Record<string, unknown> = {}): Record<string, un
     apartmentSlug: 'dmitrovskoe-107-apt-1',
     checkIn: '2026-08-20',
     checkOut: '2026-08-22',
+    guestEmail: 'maria@example.com',
     guestName: 'Maria Ivanova',
-    guestPhone: '+7 000 000 00 00',
+    preferredContactMethod: 'email',
+    preferredContactValue: null,
     captchaAnswer: 'AB234',
     captchaChallengeId: 'challenge-id',
     locale: 'en',
@@ -22,8 +24,6 @@ function homePayload(overrides: Record<string, unknown> = {}): Record<string, un
 
 function reservationPayload(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   const payload = homePayload({locale: 'ru', source: 'reservation'});
-  delete payload.captchaAnswer;
-  delete payload.captchaChallengeId;
 
   return {
     ...payload,
@@ -100,19 +100,18 @@ describe('server booking payload validation', () => {
         checkIn: 'required',
         checkOut: 'required',
         guestName: 'required',
-        guestPhone: 'required',
         locale: 'required',
         source: 'required'
       },
       kind: 'validation_failed',
       ok: false
     });
-    expect(validateBookingPayload(homePayload({guestName: 7, guestPhone: 7, checkIn: 7, checkOut: 7}), today)).toMatchObject({
+    expect(validateBookingPayload(homePayload({guestName: 7, guestEmail: 7, checkIn: 7, checkOut: 7}), today)).toMatchObject({
       fields: {
         checkIn: 'invalid_type',
         checkOut: 'invalid_type',
         guestName: 'invalid_type',
-        guestPhone: 'invalid_type'
+        guestEmail: 'invalid_type'
       },
       kind: 'validation_failed',
       ok: false
@@ -122,23 +121,23 @@ describe('server booking payload validation', () => {
       kind: 'validation_failed',
       ok: false
     });
-    expect(validateBookingPayload(homePayload({guestName: 'A', guestPhone: '123456'}), today)).toMatchObject({
-      fields: {guestName: 'too_short', guestPhone: 'too_short'},
+    expect(validateBookingPayload(homePayload({guestName: 'A', guestEmail: 'not-email'}), today)).toMatchObject({
+      fields: {guestName: 'too_short', guestEmail: 'invalid_format'},
       kind: 'validation_failed',
       ok: false
     });
-    expect(validateBookingPayload(homePayload({guestName: 'x'.repeat(101), guestPhone: '1234567890123456'}), today)).toMatchObject({
-      fields: {guestName: 'too_long', guestPhone: 'too_long'},
+    expect(validateBookingPayload(homePayload({guestName: 'x'.repeat(101), guestEmail: 'x'.repeat(255)}), today)).toMatchObject({
+      fields: {guestName: 'too_long', guestEmail: 'invalid_format'},
       kind: 'validation_failed',
       ok: false
     });
-    expect(validateBookingPayload(homePayload({guestName: 'Maria\u0000', guestPhone: '123ABC456'}), today)).toMatchObject({
-      fields: {guestName: 'control_characters', guestPhone: 'invalid_format'},
+    expect(validateBookingPayload(homePayload({guestName: 'Maria\u0000', guestEmail: 'maria\u0000@example.com'}), today)).toMatchObject({
+      fields: {guestName: 'control_characters', guestEmail: 'invalid_format'},
       kind: 'validation_failed',
       ok: false
     });
-    expect(validateBookingPayload(homePayload({guestPhone: '7+9999999'}), today)).toMatchObject({
-      fields: {guestPhone: 'invalid_format'},
+    expect(validateBookingPayload(homePayload({preferredContactMethod: 'whatsapp', preferredContactValue: '7+9999999'}), today)).toMatchObject({
+      fields: {preferredContactValue: 'invalid_format'},
       kind: 'validation_failed',
       ok: false
     });
@@ -198,7 +197,64 @@ describe('server booking payload validation', () => {
     expect(validateBookingPayload(homePayload({website: ''}), today)).toMatchObject({ok: true});
   });
 
-  it('requires CAPTCHA fields for Home and rejects them for Reservation', () => {
+  it('validates Home and Reservation contact methods independently and normalizes WhatsApp', () => {
+    expect(validateBookingPayload(homePayload({guestEmail: ''}), today)).toMatchObject({
+      fields: {guestEmail: 'required'},
+      kind: 'validation_failed',
+      ok: false
+    });
+    expect(validateBookingPayload(homePayload({preferredContactMethod: 'sms'}), today)).toMatchObject({
+      fields: {preferredContactMethod: 'invalid_value'},
+      kind: 'validation_failed',
+      ok: false
+    });
+    expect(validateBookingPayload(homePayload({preferredContactMethod: 'whatsapp', preferredContactValue: ''}), today)).toMatchObject({
+      fields: {preferredContactValue: 'required'},
+      kind: 'validation_failed',
+      ok: false
+    });
+    expect(validateBookingPayload(homePayload({preferredContactMethod: 'telegram', preferredContactValue: 'maria_user'}), today)).toMatchObject({
+      fields: {preferredContactValue: 'invalid_format'},
+      kind: 'validation_failed',
+      ok: false
+    });
+    expect(validateBookingPayload(homePayload({preferredContactMethod: 'email', preferredContactValue: 'unexpected'}), today)).toMatchObject({
+      fields: {preferredContactValue: 'not_allowed'},
+      kind: 'validation_failed',
+      ok: false
+    });
+
+    const whatsapp = validateBookingPayload(homePayload({
+      preferredContactMethod: 'whatsapp',
+      preferredContactValue: '+995 (555) 000-000'
+    }), today);
+
+    expect(whatsapp).toMatchObject({ok: true});
+    if (whatsapp.ok) {
+      expect(whatsapp.request).toMatchObject({
+        guestEmail: 'maria@example.com',
+        preferredContactMethod: 'whatsapp',
+        preferredContactValue: '+995555000000'
+      });
+      expect(whatsapp.request).not.toHaveProperty('guestPhone');
+    }
+
+    for (const [preferredContactMethod, preferredContactValue] of [
+      ['email', null],
+      ['whatsapp', '+995 555 000 000'],
+      ['telegram', '@maria_user']
+    ] as const) {
+      expect(validateBookingPayload(reservationPayload({preferredContactMethod, preferredContactValue}), today)).toMatchObject({ok: true});
+    }
+
+    expect(validateBookingPayload(reservationPayload({guestPhone: '+7 000 000 00 00'}), today)).toMatchObject({
+      fields: {guestPhone: 'not_allowed'},
+      kind: 'validation_failed',
+      ok: false
+    });
+  });
+
+  it('requires CAPTCHA fields for both Home and Reservation', () => {
     expect(validateBookingPayload(homePayload({captchaAnswer: undefined}), today)).toMatchObject({
       fields: {captchaAnswer: 'invalid_type'},
       kind: 'validation_failed',
@@ -209,8 +265,11 @@ describe('server booking payload validation', () => {
       kind: 'validation_failed',
       ok: false
     });
-    expect(validateBookingPayload(reservationPayload({captchaAnswer: 'AB234', captchaChallengeId: 'challenge-id'}), today)).toMatchObject({
-      fields: {captchaAnswer: 'not_allowed', captchaChallengeId: 'not_allowed'},
+    const missingReservationCaptcha = reservationPayload();
+    delete missingReservationCaptcha.captchaAnswer;
+    delete missingReservationCaptcha.captchaChallengeId;
+    expect(validateBookingPayload(missingReservationCaptcha, today)).toMatchObject({
+      fields: {captchaAnswer: 'required', captchaChallengeId: 'required'},
       kind: 'validation_failed',
       ok: false
     });
@@ -228,9 +287,11 @@ describe('server booking payload validation', () => {
         checkIn: '2026-08-20',
         checkOut: '2026-08-22',
         children: 1,
+        guestEmail: 'maria@example.com',
         guestName: 'Мария',
-        guestPhone: '+7 000 000 00 00',
         locale: 'ru',
+        preferredContactMethod: 'email',
+        preferredContactValue: null,
         source: 'reservation'
       });
     }

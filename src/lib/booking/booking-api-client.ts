@@ -9,14 +9,16 @@ import type {
   BookingApiResponse
 } from '@/types/booking-api';
 
+type BookingCaptchaPayload = {
+  readonly captchaAnswer: string;
+  readonly captchaChallengeId: string;
+};
+
 export type BookingApiPayload = {
   readonly website: string;
 } & (
-  | (HomeBookingRequestDraft & {
-      readonly captchaAnswer: string;
-      readonly captchaChallengeId: string;
-    })
-  | ReservationBookingRequestDraft
+  | (HomeBookingRequestDraft & BookingCaptchaPayload)
+  | (ReservationBookingRequestDraft & BookingCaptchaPayload)
 );
 
 export type BookingApiClientFailure =
@@ -52,7 +54,8 @@ function isBookingApiErrorCode(value: unknown): value is BookingApiErrorCode {
     'UNSUPPORTED_MEDIA_TYPE',
     'VALIDATION_FAILED',
     'CAPTCHA_REQUIRED',
-    'CAPTCHA_INVALID'
+    'CAPTCHA_INVALID',
+    'CAPTCHA_EXPIRED'
   ].includes(value);
 }
 
@@ -157,6 +160,8 @@ export function getBookingClientErrorMessage(
     case 'CAPTCHA_REQUIRED':
     case 'CAPTCHA_INVALID':
       return labels.requestInvalid;
+    case 'CAPTCHA_EXPIRED':
+      return labels.captchaExpired;
     case 'INTERNAL_ERROR':
     case 'INVALID_JSON':
     case 'INVALID_REQUEST':

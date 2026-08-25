@@ -1,25 +1,55 @@
 import {describe, expect, it} from 'vitest';
 
 import {validateBooking as validateBookingImplementation} from '@/lib/booking';
-import type {BookingValidationInput} from '@/types/booking';
+import type {
+  BookingValidationInput,
+  HomeBookingValidationInput,
+  HomeBookingLabels,
+  ReservationBookingValidationInput
+} from '@/types/booking';
 import type {IsoDate} from '@/types/reservation';
 
 import {clientLabels} from './test-fixtures';
 
+const homeLabels = clientLabels as unknown as HomeBookingLabels;
+
 const iso = (value: string): IsoDate => value as IsoDate;
 
 function validInput(
-  overrides: Partial<BookingValidationInput> = {}
-): BookingValidationInput {
+  overrides: Partial<HomeBookingValidationInput> = {}
+): HomeBookingValidationInput {
   return {
     apartmentSlug: 'dmitrovskoe-107-apt-1',
     checkIn: iso('2026-08-20'),
     checkOut: iso('2026-08-22'),
+    guestEmail: 'maria@example.com',
     guestName: 'Maria Ivanova',
-    guestPhone: '+7 (000) 000-00-00',
-    labels: clientLabels,
+    labels: homeLabels,
     locale: 'en',
+    preferredContactMethod: 'email',
+    preferredContactValue: '',
     source: 'home',
+    todayIso: iso('2026-08-16'),
+    ...overrides
+  };
+}
+
+function reservationInput(
+  overrides: Partial<ReservationBookingValidationInput> = {}
+): ReservationBookingValidationInput {
+  return {
+    apartmentSlug: 'dmitrovskoe-107-apt-1',
+    adults: 2,
+    checkIn: iso('2026-08-20'),
+    checkOut: iso('2026-08-22'),
+    children: 1,
+    guestName: 'Maria Ivanova',
+    guestEmail: 'maria@example.com',
+    labels: clientLabels,
+    locale: 'ru',
+    preferredContactMethod: 'email',
+    preferredContactValue: '',
+    source: 'reservation',
     todayIso: iso('2026-08-16'),
     ...overrides
   };
@@ -36,8 +66,8 @@ function validateBooking(input: BookingValidationInput) {
 describe('client booking validation', () => {
   it('trims valid Cyrillic names and creates a minimal Home draft', () => {
     const result = validateBooking(validInput({
-      guestName: '  Мария Иванова  ',
-      guestPhone: ' 1234567 '
+      guestEmail: ' maria@example.com ',
+      guestName: '  Мария Иванова  '
     }));
 
     expect(result.ok).toBe(true);
@@ -47,11 +77,14 @@ describe('client booking validation', () => {
         apartmentSlug: 'dmitrovskoe-107-apt-1',
         checkIn: '2026-08-20',
         checkOut: '2026-08-22',
+        guestEmail: 'maria@example.com',
         guestName: 'Мария Иванова',
-        guestPhone: '1234567',
         locale: 'en',
+        preferredContactMethod: 'email',
+        preferredContactValue: null,
         source: 'home'
       });
+      expect(result.draft).not.toHaveProperty('guestPhone');
       expect(result.draft).not.toHaveProperty('price');
       expect(result.draft).not.toHaveProperty('total');
       expect(result.draft).not.toHaveProperty('address');
@@ -60,9 +93,10 @@ describe('client booking validation', () => {
     }
   });
 
-  it('accepts Latin hyphens, apostrophes and the 7/15 digit phone boundaries', () => {
-    expect(validateBooking(validInput({guestName: " Anne-Marie O'Neil ", guestPhone: '123 4567'})).ok).toBe(true);
-    expect(validateBooking(validInput({guestPhone: '123456789012345'})).ok).toBe(true);
+  it('accepts valid email, WhatsApp and Telegram values', () => {
+    expect(validateBooking(validInput({guestName: " Anne-Marie O'Neil "})).ok).toBe(true);
+    expect(validateBooking(validInput({preferredContactMethod: 'whatsapp', preferredContactValue: '+995 555 00 00 00'})).ok).toBe(true);
+    expect(validateBooking(validInput({preferredContactMethod: 'telegram', preferredContactValue: '@maria_user'})).ok).toBe(true);
   });
 
   it('rejects invalid names with precise local errors', () => {
@@ -84,28 +118,32 @@ describe('client booking validation', () => {
     });
   });
 
-  it('rejects phone characters, plus placement and digit length violations', () => {
-    for (const guestPhone of ['123456', '1234567890123456', '123ABC456', '7+9999999', '++7999999']) {
-      expect(validateBooking(validInput({guestPhone}))).toMatchObject({
-        errors: {guestPhone: expect.any(String)},
+  it('rejects invalid Home email and contact values', () => {
+    expect(validateBooking(validInput({guestEmail: ''}))).toMatchObject({
+      errors: {guestEmail: clientLabels.guestEmailRequired},
+      ok: false
+    });
+    expect(validateBooking(validInput({guestEmail: 'not-an-email'}))).toMatchObject({
+      errors: {guestEmail: clientLabels.guestEmailFormat},
+      ok: false
+    });
+    for (const preferredContactValue of ['123456', '+995ABC555', '7+995555555']) {
+      expect(validateBooking(validInput({preferredContactMethod: 'whatsapp', preferredContactValue}))).toMatchObject({
+        errors: {preferredContactValue: clientLabels.whatsappNumberFormat},
         ok: false
       });
     }
-    expect(validateBooking(validInput({guestPhone: '123456'}))).toMatchObject({
-      errors: {guestPhone: clientLabels.guestPhoneTooShort}
+    expect(validateBooking(validInput({preferredContactMethod: 'telegram', preferredContactValue: 'maria_user'}))).toMatchObject({
+      errors: {preferredContactValue: clientLabels.telegramUsernameFormat}
     });
-    expect(validateBooking(validInput({guestPhone: '1234567890123456'}))).toMatchObject({
-      errors: {guestPhone: clientLabels.guestPhoneTooLong}
+    expect(validateBooking(validInput({preferredContactMethod: ''}))).toMatchObject({
+      errors: {preferredContactMethod: clientLabels.preferredContactMethodRequired},
+      ok: false
     });
   });
 
-  it('creates reservation drafts with guest counts and no trusted fields', () => {
-    const result = validateBooking(validInput({
-      adults: 2,
-      children: 1,
-      locale: 'ru',
-      source: 'reservation'
-    }));
+  it('creates reservation drafts with guest counts and contact fields but no trusted fields', () => {
+    const result = validateBooking(reservationInput());
 
     expect(result.ok).toBe(true);
 
@@ -117,9 +155,11 @@ describe('client booking validation', () => {
         'checkIn',
         'checkOut',
         'children',
+        'guestEmail',
         'guestName',
-        'guestPhone',
         'locale',
+        'preferredContactMethod',
+        'preferredContactValue',
         'source'
       ]);
     }
@@ -136,7 +176,7 @@ describe('client booking validation', () => {
       errors: {apartment: clientLabels.apartmentRequired},
       ok: false
     });
-    expect(validateBooking(validInput({adults: 0, children: 11, source: 'reservation'}))).toMatchObject({
+    expect(validateBooking(reservationInput({adults: 0, children: 11}))).toMatchObject({
       errors: {reservation: clientLabels.reservationIncomplete},
       ok: false
     });

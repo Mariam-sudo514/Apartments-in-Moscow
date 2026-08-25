@@ -23,8 +23,9 @@ function getHomeApartmentLabel(
   const legacyBuildingSuffix = catalogOrder === 4 || catalogOrder === 5
     ? locale === 'en' ? ', building 3' : ', корпус 3'
     : '';
+  const apartmentUnitLabel = locale === 'en' ? 'apt.' : 'кв.';
 
-  return `${address}${legacyBuildingSuffix}, ${type} кв. ${catalogOrder}`;
+  return `${address}${legacyBuildingSuffix}, ${type} ${apartmentUnitLabel} ${catalogOrder}`;
 }
 
 export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
@@ -48,6 +49,7 @@ export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
     apartmentPlaceholder: t('apartmentPlaceholder'),
     apartmentRequired: t('apartmentRequired'),
     bookingDetailsTitle: t('bookingDetailsTitle'),
+    calendarLabel: t('calendarLabel'),
     checkInLabel: t('checkInLabel'),
     checkInPast: t('checkInPast'),
     checkInRequired: t('checkInRequired'),
@@ -55,7 +57,10 @@ export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
     checkOutLabel: t('checkOutLabel'),
     checkOutRequired: t('checkOutRequired'),
     contactTitle: t('contactTitle'),
+    clearDate: t('clearDate'),
+    datePlaceholder: t('datePlaceholder'),
     captchaAlt: t('captchaAlt'),
+    captchaExpired: t('captchaExpired'),
     captchaInvalid: t('captchaInvalid'),
     captchaLabel: t('captchaLabel'),
     captchaLoadFailed: t('captchaLoadFailed'),
@@ -70,17 +75,31 @@ export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
     guestNameRequired: t('guestNameRequired'),
     guestNameTooLong: t('guestNameTooLong'),
     guestNameTooShort: t('guestNameTooShort'),
-    guestPhoneFormat: t('guestPhoneFormat'),
-    guestPhoneLabel: t('guestPhoneLabel'),
-    guestPhonePlaceholder: t('guestPhonePlaceholder'),
-    guestPhoneRequired: t('guestPhoneRequired'),
-    guestPhoneTooLong: t('guestPhoneTooLong'),
-    guestPhoneTooShort: t('guestPhoneTooShort'),
+    guestEmailFormat: t('guestEmailFormat'),
+    guestEmailLabel: t('guestEmailLabel'),
+    guestEmailPlaceholder: t('guestEmailPlaceholder'),
+    guestEmailRequired: t('guestEmailRequired'),
+    preferredContactMethodLabel: t('preferredContactMethodLabel'),
+    preferredContactMethodPlaceholder: t('preferredContactMethodPlaceholder'),
+    preferredContactMethodRequired: t('preferredContactMethodRequired'),
+    preferredContactValueFormat: t('preferredContactValueFormat'),
+    emailOption: t('emailOption'),
+    whatsappOption: t('whatsappOption'),
+    telegramOption: t('telegramOption'),
+    whatsappNumberLabel: t('whatsappNumberLabel'),
+    whatsappNumberPlaceholder: t('whatsappNumberPlaceholder'),
+    whatsappNumberRequired: t('whatsappNumberRequired'),
+    whatsappNumberFormat: t('whatsappNumberFormat'),
+    telegramUsernameLabel: t('telegramUsernameLabel'),
+    telegramUsernamePlaceholder: t('telegramUsernamePlaceholder'),
+    telegramUsernameRequired: t('telegramUsernameRequired'),
+    telegramUsernameFormat: t('telegramUsernameFormat'),
     reservationIncomplete: t('reservationIncomplete'),
     sendRequest: t('sendRequest'),
     sending: t('sending'),
     successMessage: t('successMessage'),
     networkFailure: t('networkFailure'),
+    nextMonth: t('nextMonth'),
     invalidResponse: t('invalidResponse'),
     requestInvalid: t('requestInvalid'),
     requestForbidden: t('requestForbidden'),
@@ -88,12 +107,14 @@ export async function HomeBookingSection({locale}: HomeBookingSectionProps) {
     requestUnsupportedMedia: t('requestUnsupportedMedia'),
     requestValidationFailed: t('requestValidationFailed'),
     requestRateLimited: t('requestRateLimited'),
+    previousMonth: t('previousMonth'),
     serverMisconfigured: t('serverMisconfigured'),
     deliveryNotConfigured: t('deliveryNotConfigured'),
     deliveryFailed: t('deliveryFailed'),
     retry: t('retry'),
     title: t('title'),
-    todayInitializing: t('todayInitializing')
+    todayInitializing: t('todayInitializing'),
+    today: t('today')
   };
 
   return (

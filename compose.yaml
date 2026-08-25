@@ -17,22 +17,26 @@ services:
   web:
     build: .
     environment:
-      BOOKING_ALLOWED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
-      BOOKING_MAIL_FROM: bookings@example.test
-      BOOKING_MAIL_MODE: mailpit
-      BOOKING_MAIL_TO: landlord@example.test
-      BOOKING_RATE_LIMIT_MAX: "5"
-      BOOKING_RATE_LIMIT_WINDOW_MS: "60000"
-      BOOKING_SMTP_HOST: mailpit
-      BOOKING_SMTP_PORT: "1025"
+      BOOKING_ALLOWED_ORIGINS: ${BOOKING_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      BOOKING_MAIL_FROM: ${BOOKING_MAIL_FROM:-bookings@example.test}
+      BOOKING_MAIL_MODE: ${BOOKING_MAIL_MODE:-mailpit}
+      BOOKING_MAIL_TO: ${BOOKING_MAIL_TO:-landlord@example.test}
+      BOOKING_RATE_LIMIT_MAX: ${BOOKING_RATE_LIMIT_MAX:-5}
+      BOOKING_RATE_LIMIT_WINDOW_MS: ${BOOKING_RATE_LIMIT_WINDOW_MS:-60000}
+      BOOKING_RATE_LIMIT_SECRET: ${BOOKING_RATE_LIMIT_SECRET:-}
+      BOOKING_SMTP_HOST: ${BOOKING_SMTP_HOST:-mailpit}
+      BOOKING_SMTP_PASS: ${BOOKING_SMTP_PASS:-}
+      BOOKING_SMTP_PORT: ${BOOKING_SMTP_PORT:-1025}
+      BOOKING_SMTP_SECURE: ${BOOKING_SMTP_SECURE:-false}
+      BOOKING_SMTP_USER: ${BOOKING_SMTP_USER:-}
       BOOKING_TRUST_PROXY: "false"
       HOSTNAME: 0.0.0.0
-      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
       NEXT_TELEMETRY_DISABLED: "1"
       NODE_ENV: production
       PORT: "3000"
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${BOOKING_WEB_PORT:-3000}:3000"
     depends_on:
       mailpit:
         condition: service_healthy

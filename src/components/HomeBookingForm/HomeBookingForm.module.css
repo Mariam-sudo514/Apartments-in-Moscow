@@ -115,6 +115,190 @@
   gap: 15px;
 }
 
+.localizedDateInput {
+  position: relative;
+  width: 100%;
+}
+
+.dateInput {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 14px;
+  background: #fff;
+  box-sizing: border-box;
+  color: #191919;
+  cursor: pointer;
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+}
+
+.dateInput:hover,
+.dateInput:focus,
+.dateInput:focus-visible,
+.dateInput[aria-invalid='true'] {
+  border: 1px solid #ccc;
+  outline: none;
+  box-shadow: none;
+}
+
+.dateInput:focus-visible,
+.datePickerNavButton:focus-visible,
+.datePickerDay:focus-visible,
+.datePickerAction:focus-visible {
+  outline: 2px solid #ff868c;
+  outline-offset: 2px;
+}
+
+.dateInputValue {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dateInputIcon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  color: #191919;
+}
+
+.datePickerPopup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  width: 100%;
+  max-width: 100%;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.datePickerNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.datePickerMonthTitle {
+  min-width: 0;
+  margin: 0;
+  color: #191919;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.datePickerNavButton {
+  display: flex;
+  flex: 0 0 30px;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #191919;
+  cursor: pointer;
+}
+
+.datePickerNavButton:hover {
+  color: #ff868c;
+}
+
+.datePickerNavButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.datePickerGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.datePickerWeekday {
+  padding: 4px 0;
+  color: #19191960;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.datePickerEmptyDay,
+.datePickerDayCell {
+  aspect-ratio: 1;
+  min-width: 0;
+}
+
+.datePickerDay {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #191919;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.datePickerDay:hover:not(:disabled) {
+  border-color: #ff868c;
+  background: #fff0f1;
+}
+
+.datePickerDay:disabled {
+  color: #b5b5b5;
+  cursor: not-allowed;
+}
+
+.datePickerSelectedDay {
+  border-color: #ff868c;
+  background: #ff868c;
+  color: #fff;
+  font-weight: 600;
+}
+
+.datePickerToday:not(.datePickerSelectedDay) {
+  border-color: #ff868c;
+}
+
+.datePickerActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.datePickerAction {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: #ff4149;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.datePickerAction:disabled {
+  color: #b5b5b5;
+  cursor: not-allowed;
+}
+
 .formDate {
   display: flex;
   flex-direction: column;
@@ -291,7 +475,7 @@
     font-size: 14px;
   }
 
-.formContainer input, .formContainer select {
+.formContainer input, .formContainer select, .dateInput {
   font-size: 14px;
 
 }
@@ -308,7 +492,7 @@
     font-size: 14px;
   }
 
-.formContainer input, .formContainer select {
+.formContainer input, .formContainer select, .dateInput {
   font-size: 14px;
 }
 }

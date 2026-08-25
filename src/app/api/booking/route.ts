@@ -4,8 +4,11 @@ import {getMoscowTodayIso} from '@/lib/reservation/calendar';
 import {verifyCaptchaChallenge} from '@/server/captcha';
 import {
   BOOKING_BODY_LIMIT_BYTES,
+  BOOKING_BURST_LIMIT,
+  BOOKING_BURST_WINDOW_MS,
   BookingBodyTooLargeError,
   BookingInvalidJsonError,
+  bookingBurstRateLimiter,
   bookingRateLimiter,
   calculateTrustedBookingQuote,
   createBookingAcceptedResponse,
@@ -33,11 +36,24 @@ export async function POST(request: Request): Promise<Response> {
     return createBookingErrorResponse('REQUEST_FORBIDDEN', 403);
   }
 
-  const rateLimit = bookingRateLimiter.consume(
-    getBookingRateLimitKey(request, configResult.config.trustProxy),
-    configResult.config.rateLimitMax,
-    configResult.config.rateLimitWindowMs
+  const rateLimitKey = getBookingRateLimitKey(
+    request,
+    configResult.config.trustProxy,
+    configResult.config.rateLimitSecret
   );
+  const burstRateLimit = bookingBurstRateLimiter.consume(
+    rateLimitKey,
+    Math.min(BOOKING_BURST_LIMIT, configResult.config.rateLimitMax),
+    BOOKING_BURST_WINDOW_MS
+  );
+
+  const rateLimit = burstRateLimit.allowed
+    ? bookingRateLimiter.consume(
+        rateLimitKey,
+        configResult.config.rateLimitMax,
+        configResult.config.rateLimitWindowMs
+      )
+    : burstRateLimit;
 
   if (!rateLimit.allowed) {
     return createBookingErrorResponse(
@@ -76,19 +92,20 @@ export async function POST(request: Request): Promise<Response> {
       : createBookingErrorResponse('VALIDATION_FAILED', 422, validation.fields);
   }
 
-  if (validation.request.source === 'home') {
-    if (validation.captcha === undefined) {
-      return createBookingErrorResponse('CAPTCHA_REQUIRED', 422);
-    }
+  if (validation.captcha === undefined) {
+    return createBookingErrorResponse('CAPTCHA_REQUIRED', 422);
+  }
 
-    const captcha = verifyCaptchaChallenge(
-      validation.captcha.challengeId,
-      validation.captcha.answer
+  const captcha = verifyCaptchaChallenge(
+    validation.captcha.challengeId,
+    validation.captcha.answer
+  );
+
+  if (!captcha.ok) {
+    return createBookingErrorResponse(
+      captcha.reason === 'expired' ? 'CAPTCHA_EXPIRED' : 'CAPTCHA_INVALID',
+      422
     );
-
-    if (!captcha.ok) {
-      return createBookingErrorResponse('CAPTCHA_INVALID', 422);
-    }
   }
 
   const quote = calculateTrustedBookingQuote(validation.request);

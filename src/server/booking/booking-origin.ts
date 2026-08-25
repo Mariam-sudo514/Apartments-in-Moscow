@@ -1,9 +1,12 @@
 import 'server-only';
 
+import {randomBytes} from 'node:crypto';
+
 export type BookingServerConfig = {
   readonly allowedOrigins: readonly string[];
   readonly rateLimitMax: number;
   readonly rateLimitWindowMs: number;
+  readonly rateLimitSecret: string;
   readonly trustProxy: boolean;
 };
 
@@ -12,6 +15,38 @@ type Environment = Readonly<Record<string, string | undefined>>;
 type BookingConfigResult =
   | {readonly ok: true; readonly config: BookingServerConfig}
   | {readonly ok: false};
+
+const RATE_LIMIT_SECRET_PATTERN = /^[a-f0-9]{64}$/iu;
+let testProcessRateLimitSecret: string | undefined;
+
+function parseRateLimitSecret(value: string | undefined): string | null {
+  if (value === undefined) {
+    return null;
+  }
+
+  if (!RATE_LIMIT_SECRET_PATTERN.test(value)) {
+    return null;
+  }
+
+  return value;
+}
+
+export function getRateLimitSecret(
+  environment: Environment = process.env
+): string | null {
+  const configuredSecret = parseRateLimitSecret(environment.BOOKING_RATE_LIMIT_SECRET);
+
+  if (configuredSecret !== null) {
+    return configuredSecret;
+  }
+
+  if (environment.BOOKING_RATE_LIMIT_SECRET === undefined && environment.NODE_ENV === 'test') {
+    testProcessRateLimitSecret ??= randomBytes(32).toString('hex');
+    return testProcessRateLimitSecret;
+  }
+
+  return null;
+}
 
 function parseConfiguredOrigin(value: string): string | null {
   const trimmed = value.trim();
@@ -97,9 +132,15 @@ export function getBookingServerConfig(
     60_000,
     86_400_000
   );
+  const rateLimitSecret = getRateLimitSecret(environment);
   const trustProxy = parseTrustProxy(environment.BOOKING_TRUST_PROXY);
 
-  if (rateLimitMax === null || rateLimitWindowMs === null || trustProxy === null) {
+  if (
+    rateLimitMax === null ||
+    rateLimitSecret === null ||
+    rateLimitWindowMs === null ||
+    trustProxy === null
+  ) {
     return {ok: false};
   }
 
@@ -108,6 +149,7 @@ export function getBookingServerConfig(
       allowedOrigins: [...new Set(origins as string[])],
       rateLimitMax,
       rateLimitWindowMs,
+      rateLimitSecret,
       trustProxy
     },
     ok: true

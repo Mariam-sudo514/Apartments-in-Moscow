@@ -11,11 +11,13 @@ function request(apartmentSlug: string): ValidatedBookingRequest {
     checkIn: '2026-08-20',
     checkOut: '2026-08-23',
     guestName: 'Maria Ivanova',
-    guestPhone: '+7 000 000 00 00',
+    guestEmail: 'maria@example.com',
     locale: 'en',
     source: 'reservation',
     adults: 2,
-    children: 0
+    children: 0,
+    preferredContactMethod: 'email',
+    preferredContactValue: null
   });
 }
 

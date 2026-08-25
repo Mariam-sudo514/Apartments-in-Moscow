@@ -1,5 +1,7 @@
 import 'server-only';
 
+import {createHmac} from 'node:crypto';
+
 type RateLimitEntry = {
   readonly count: number;
   readonly windowStartedAt: number;
@@ -10,7 +12,10 @@ export type RateLimitResult = {
   readonly retryAfterSeconds?: number;
 };
 
-const MAX_ENTRIES = 10_000;
+export const RATE_LIMIT_MAX_ENTRIES = 10_000;
+
+export const BOOKING_BURST_LIMIT = 3;
+export const BOOKING_BURST_WINDOW_MS = 10_000;
 
 export class FixedWindowRateLimiter {
   private readonly entries = new Map<string, RateLimitEntry>();
@@ -27,7 +32,7 @@ export class FixedWindowRateLimiter {
     const current = this.entries.get(key);
 
     if (current === undefined) {
-      if (this.entries.size >= MAX_ENTRIES) {
+      if (this.entries.size >= RATE_LIMIT_MAX_ENTRIES) {
         return {allowed: false, retryAfterSeconds: Math.max(1, Math.ceil(windowMs / 1000))};
       }
 
@@ -70,19 +75,33 @@ export class FixedWindowRateLimiter {
   }
 }
 
-export function getBookingRateLimitKey(request: Request, trustProxy: boolean): string {
+export function getBookingRateLimitKey(
+  request: Request,
+  trustProxy: boolean,
+  rateLimitSecret: string | null
+): string {
   if (trustProxy) {
     const forwardedFor = request.headers.get('x-forwarded-for');
     const firstForwardedAddress = forwardedFor?.split(',')[0]?.trim();
 
-    if (firstForwardedAddress !== undefined && firstForwardedAddress.length > 0 && firstForwardedAddress.length <= 128) {
-      return `forwarded:${firstForwardedAddress}`;
+    if (
+      rateLimitSecret !== null &&
+      firstForwardedAddress !== undefined &&
+      firstForwardedAddress.length > 0 &&
+      firstForwardedAddress.length <= 128
+    ) {
+      const addressHash = createHmac('sha256', rateLimitSecret)
+        .update(firstForwardedAddress, 'utf8')
+        .digest('hex');
+
+      return `forwarded:${addressHash}`;
     }
 
-    return 'forwarded:unknown';
+    return rateLimitSecret === null ? 'forwarded:unavailable' : 'forwarded:unknown';
   }
 
   return 'single-process-fallback';
 }
 
+export const bookingBurstRateLimiter = new FixedWindowRateLimiter();
 export const bookingRateLimiter = new FixedWindowRateLimiter();

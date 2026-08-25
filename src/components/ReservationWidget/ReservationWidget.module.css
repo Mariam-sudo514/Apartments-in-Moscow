@@ -55,8 +55,8 @@
   display: block;
   overflow: hidden;
   color: #333333;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 700;
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -269,8 +269,8 @@
 }
 
 .counterButton:disabled {
-  background-color: #e8e8e8;
-  color: #999999;
+  background-color: #ff989d;
+  color: #ff4149;
   cursor: not-allowed;
 }
 
@@ -478,9 +478,6 @@
     display: none;
   }
 
-  .dropdown:has(.calendarWrapper) {
-    max-width: 380px;
-  }
 }
 
 @media (max-width: 768px) {
