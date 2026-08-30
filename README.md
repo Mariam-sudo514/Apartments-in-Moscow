@@ -1,140 +1,133 @@
 # Moscow Apartments
 
+Moscow Apartments is a bilingual apartment-rental application and full-stack portfolio project built with Next.js and TypeScript. It combines a Russian/English apartment catalog with localized detail pages and a booking form backed by client-side and server-side validation; it is a portfolio/demo application rather than a deployed rental service.
+
 [![CI](https://github.com/Mariam-sudo514/Apartments-in-Moscow/actions/workflows/ci.yml/badge.svg)](https://github.com/Mariam-sudo514/Apartments-in-Moscow/actions/workflows/ci.yml)
 
-Moscow Apartments is a Next.js foundation for the staged migration of a legacy apartment-rental website.
+![Moscow Apartments home page](.github/assets/moscow-apartments-preview.png)
 
-## Migration status
+## Overview
 
-Stage 4A adds a typed apartment data foundation for all 12 legacy properties. RU/EN catalog and detail data, price modes, source provenance, map embeds, cover paths, and ordered gallery manifests are prepared in `src/data/apartments` using the shared domain types in `src/types/apartment.ts`. Stage 4B migrates the RU/EN apartment catalog and all 12 localized detail routes, with static slug generation, localized metadata, semantic breadcrumbs, responsive detail layouts, keyboard-accessible galleries, lazy map embeds, and the 108 source gallery images copied byte-for-byte into `public/images/apartments`. Stage 5 restores the Home apartment carousel with local `swiper@12.1.2`, 12 data-driven slides, loop, five-second autoplay, hover pause, keyboard and touch navigation, clickable dynamic pagination, and responsive 1/2/3-slide layouts. Stage 6 migrates the full RU/EN Contacts page with localized metadata, safe placeholder contact links from `src/config/social-links.ts`, and a CSS/icon visual contact panel. Stage 7A adds localized reservation date, guest, and apartment selection with a responsive keyboard-accessible calendar and preliminary client-side price calculation. Stage 7B adds localized Reservation contact fields, strict client-side validation, a single submit action, and a typed in-memory booking request draft. Stage 7C and Stage 10B.2 add the Home booking workflow on `/` and `/en` with localized contact, native date, typed apartment selection, strict local validation, Moscow-date readiness, a local CAPTCHA challenge, the existing honeypot, and one main submit action. Stage 8A adds a `POST /api/booking` Route Handler with strict JSON, request-origin and Fetch Metadata checks, server-side validation, trusted typed-data quotes, an 8 KiB streaming body limit, and an in-memory fixed-window rate limiter. The Stage 7A total uses typed apartment prices but is not server-authoritative. The Contacts page uses a user-supplied replacement QR and neutral display values in place of legacy contact data. Stage 3 static Home sections remain implemented: the Hero, Why Choose Us feature cards, and the static Contacts teaser. Stage 2 shared responsive Header/Footer, local Montserrat/Roboto fonts, RU/EN navigation, the Footer language switch, and safe placeholder social links remain in place.
+This project modernizes a legacy apartment-rental frontend as a structured Next.js application. It provides a localized catalog, dynamic apartment pages, responsive galleries, a home carousel, and booking workflows for Russian and English visitors.
 
-The prepared translations and catalog/detail discrepancies require later content review. The reservation form keeps its typed request draft in memory, while the Home form submits its validated fields through the booking delivery workflow. The API repeats validation, recalculates a trusted quote, and verifies the CAPTCHA before handing the request to the configured Nodemailer transport. Stage 7A and client-side form totals remain preliminary and are not server-authoritative. The local CAPTCHA uses an opaque challenge id, a short-lived in-memory store, limited attempts, and one-time successful verification. Contacts use the user-supplied replacement QR, neutral display values instead of legacy phone, email, and handle data, and safe example.com action links. The apartment gallery is implemented separately from the Home carousel.
+The UI is built with React and App Router server components, while booking requests are handled by a Node.js Route Handler with server-side validation, trusted quote calculation, CAPTCHA checks, rate limiting, and configurable email delivery.
 
-## Technology stack
+## Key Features
 
-- Next.js 16
-- React 19
-- TypeScript with strict checks
-- `next-intl` for locale-aware routing and server-side messages
-- `react-icons` for shared social and menu icons
-- ESLint
-- npm
+- Russian and English localization with locale-aware routes
+- Apartment catalog backed by typed static data
+- Dynamic apartment detail pages
+- Responsive apartment image galleries
+- Home apartment carousel with touch, keyboard, and responsive navigation
+- Reservation workflow with date, guest, and apartment selection
+- Client-side and server-side booking validation
+- Trusted server-side quote calculation
+- CAPTCHA protection for booking requests
+- Configurable email delivery through Mailpit or SMTP
+- Responsive navigation with keyboard-accessible mobile behavior
+- Localized SEO metadata
+- Sitemap and robots endpoints
+- Allowlisted redirects from published legacy URLs
+- Accessibility improvements across navigation, forms, calendars, and galleries
 
-## Prerequisites
+## Screenshots
 
-- Node.js 20.9 or newer
-- npm 10 or newer
+![Responsive home page on mobile](.github/assets/mobile-preview.png)
 
-## Installation
+![Apartment catalog](.github/assets/catalog-preview.png)
+
+![Apartment detail page](.github/assets/apartment-preview.png)
+
+![Reservation page](.github/assets/reservation-preview.png)
+
+## Technology Stack
+
+### Frontend
+
+- Next.js 16.3.0
+- React 19.2.8
+- TypeScript 6.0.3 with strict checks
+- next-intl 4.13.6
+- Swiper 12.1.2
+
+### Server
+
+- Next.js Route Handlers
+- Nodemailer 9.0.3
+
+### Testing and Quality
+
+- Vitest 3.2.7
+- ESLint 9.39.5
+- TypeScript strict mode
+- GitHub Actions
+
+### Local Infrastructure
+
+- Docker Compose
+- Mailpit 1.30.0
+
+## Architecture Highlights
+
+- App Router organizes localized pages and server-rendered route content.
+- Typed apartment records provide one source for catalog, detail, carousel, and booking options.
+- `next-intl` serves prefixless Russian routes and `/en` English routes.
+- The booking Route Handler validates the request again on the server and calculates the trusted quote from typed apartment data.
+- Request controls include an 8 KiB body limit, exact-origin and Fetch Metadata checks, CAPTCHA, bounded in-memory rate limiting, and fail-closed configuration checks.
+- Nodemailer supports disabled, local Mailpit, and explicitly configured SMTP modes.
+- Booking data is not stored in a production database in this public version; it remains in memory during the request and is passed to the configured mail transport.
+
+## Getting Started
+
+The interface can be opened without SMTP or Docker configuration.
 
 ```bash
-npm install
-```
-
-Copy `.env.example` to `.env.local` when a local public site URL or safe mail configuration example is needed. The tracked example contains placeholders only; never commit local SMTP credentials. Use `npm ci` for a clean install from the lockfile.
-
-## Development
-
-```bash
+git clone https://github.com/Mariam-sudo514/Apartments-in-Moscow.git
+cd Apartments-in-Moscow
+npm ci
 npm run dev
 ```
 
-The development server runs at `http://localhost:3000` by default.
+Open `http://localhost:3000`. The project uses Node.js 22.22.0 in CI and Docker; use that version or a compatible newer Node.js 22 release with npm 10 or newer.
 
-## Build and verification
+## Environment Configuration
 
-```bash
-npm run lint
-npm run typecheck
-npm run build
-npm run verify
-```
+The tracked `.env.example` contains placeholders only. Copy it to an ignored local environment file when testing booking delivery, and never commit credentials.
 
-## Testing
+The application uses `NEXT_PUBLIC_SITE_URL`, `BOOKING_ALLOWED_ORIGINS`, `BOOKING_RATE_LIMIT_SECRET`, `BOOKING_TRUST_PROXY`, `BOOKING_RATE_LIMIT_MAX`, and `BOOKING_RATE_LIMIT_WINDOW_MS` for site and request protection. The rate-limit secret is a locally supplied 64-character hexadecimal value.
+
+Set `BOOKING_MAIL_MODE=mailpit` for local delivery and run the Docker Compose stack. Mailpit is available at `http://127.0.0.1:8025`. Explicit SMTP mode additionally requires the server-side `BOOKING_SMTP_HOST`, `BOOKING_SMTP_PORT`, `BOOKING_SMTP_SECURE`, `BOOKING_SMTP_USER`, `BOOKING_SMTP_PASS`, `BOOKING_MAIL_FROM`, and `BOOKING_MAIL_TO` variables. Do not put real values in the repository.
 
 ```bash
-npm test
-npm run test:coverage
-npm run verify
-```
-
-The deterministic Node test suite covers typed apartment data and manifests, calendar and Moscow-date arithmetic, client and server booking validation, trusted quotes, request security boundaries, local mail configuration and plain-text rendering, legacy redirects, and sitemap/robots invariants. Browser end-to-end behavior remains a separate manual Stage 9B check. The CI workflow is configured but no GitHub Actions result is claimed until it has been run on GitHub.
-
-## Scaffold routes
-
-Russian is the default locale and does not use a URL prefix:
-
-- `/`
-- `/apartments`
-- `/contacts`
-- `/reservation`
-
-English uses the `/en` prefix:
-
-- `/en`
-- `/en/apartments`
-- `/en/contacts`
-- `/en/reservation`
-
-Apartment detail routes use the same slug in both locales, for example:
-
-- `/apartments/dmitrovskoe-107-apt-1`
-- `/en/apartments/dmitrovskoe-107-apt-1`
-
-The health endpoint is available at `/api/health` and is independent of locale routing.
-
-The shared Header and Footer use the existing responsive contract, including the 900px mobile menu breakpoint, the 950px Footer navigation breakpoint, and the 450px Footer stacking breakpoint. Montserrat and Roboto are loaded from local variable font files. The Footer language switch keeps the current route, query parameters, and hash while using RU/EN placeholder routing. Social actions use safe `example.com` links and the neutral `mail@gmail.com` display placeholder.
-
-## Booking API
-
-The `POST /api/booking` endpoint accepts strict JSON requests up to 8 KiB, requires an exact configured origin plus the `X-Booking-Request: 1` header, validates Fetch Metadata when present, and applies short burst and sustained in-memory rate limits. The documented local defaults are five requests per 60 seconds with a three-request burst window and `BOOKING_TRUST_PROXY=false`; when a deployment explicitly enables a trusted proxy, the forwarded client address is keyed with HMAC-SHA256 using the server-only `BOOKING_RATE_LIMIT_SECRET`. That mode requires a reverse proxy that strips untrusted forwarding headers before setting its own value; the application does not infer a trustworthy proxy from a client-supplied header. Home and Reservation requests require an individual CAPTCHA challenge and answer; invalid, expired, repeated, or unknown challenges are rejected before delivery. Stage 8B connects both forms to a configured Nodemailer transport in `disabled`, `mailpit`, or explicit `smtp` mode. The API repeats validation, recalculates a trusted quote from typed apartment data, and sends a plain-text message to the configured recipient. The app does not persist booking data: form values exist only in React state while the page is open and the configured mail provider retains the accepted message. Browser autofill is controlled by the browser and is outside application storage. The client-side quote remains preliminary rather than server-authoritative.
-
-## Local booking delivery
-
-Stage 8B uses `nodemailer@9.0.3` and Docker Compose for local delivery. The default Compose mode is Mailpit: the web container uses the pinned `node:22.22.0-bookworm-slim` image and connects to the pinned `axllent/mailpit:v1.30.0` service over the internal Docker network. SMTP port `1025` is not published to the host; the Mailpit UI is available only at `http://127.0.0.1:8025`. Run Mailpit locally with `docker compose --env-file .env.mailpit.local up -d --build` and keep that ignored file local. The server also supports an explicit `smtp` mode using only server-side `BOOKING_SMTP_HOST`, `BOOKING_SMTP_PORT`, `BOOKING_SMTP_SECURE`, `BOOKING_SMTP_USER`, `BOOKING_SMTP_PASS`, `BOOKING_MAIL_FROM`, `BOOKING_MAIL_TO`, and `BOOKING_RATE_LIMIT_SECRET` environment variables; the rate-limit secret must be a locally supplied 64-character hexadecimal value. Incomplete or unknown configurations fail closed, and credentials must remain in an ignored `.env.smtp.local` file.
-
-```bash
-docker compose config --quiet
-docker compose build
-docker compose up -d
+docker compose --env-file .env.mailpit.local up -d --build
 docker compose ps
-docker compose logs --no-log-prefix web
 docker compose down
 ```
 
-The application is available at `http://127.0.0.1:3000`, Mailpit at `http://127.0.0.1:8025`, and the health endpoint at `http://127.0.0.1:3000/api/health`. The Mailpit service has no persistent volume, so local messages are intentionally ephemeral. SMTP mode is implemented and was manually verified with test submissions; this repository still does not claim a production deployment. Booking persistence and a production booking workflow remain outside this local delivery stage. GitHub Pages is not supported because the booking API, CAPTCHA, and server-side mail delivery require a Node.js server runtime.
+## Available Scripts
 
-## SEO and legacy URL migration
-
-Stage 9A adds permanent `308` redirects for the published legacy `.html` URLs. Legacy pages are Russian and redirect directly to the unprefixed RU routes, preserving query parameters without creating redirect chains. The current route map is:
-
-| Legacy URL | Next.js route |
+| Command | Purpose |
 | --- | --- |
-| `/index.html` | `/` |
-| `/apartaments.html` | `/apartments` |
-| `/contacts.html` | `/contacts` |
-| `/reservation.html` | `/reservation` |
-| `/apartament780.html` | `/apartments/dmitrovskoe-107-apt-1` |
-| `/apartament755.html` | `/apartments/dmitrovskoe-107-apt-2` |
-| `/apartament1202.html` | `/apartments/altufyevskoe-2-apt-3` |
-| `/apartament1204.html` | `/apartments/altufyevskoe-2-apt-4` |
-| `/apartament1206.html` | `/apartments/altufyevskoe-2-apt-5` |
-| `/apartament759.html` | `/apartments/dmitrovskoe-107-apt-6` |
-| `/ap.html` | `/apartments/dmitrovskoe-107-apt-7` |
-| `/apartament794.html` | `/apartments/dmitrovskoe-107-apt-8` |
-| `/apartament230.html` | `/apartments/beskudnikovsky-31-apt-9` |
-| `/apartament170.html` | `/apartments/beskudnikovsky-52-apt-10` |
-| `/apartament58-230.html` | `/apartments/beskudnikovsky-58-apt-11` |
-| `/apartament12.html` | `/apartments/mitino-aframe` |
+| `npm run dev` | Start the development server |
+| `npm run build` | Create a production build |
+| `npm run lint` | Run ESLint |
+| `npm run typecheck` | Check TypeScript types |
+| `npm test` | Run automated tests |
+| `npm run test:coverage` | Run tests with coverage |
+| `npm run verify` | Run the complete quality check |
 
-Every RU and EN indexable route now has localized title and description metadata, a locale-correct canonical, `ru-RU`/`en-US` alternates, and an `x-default` alternate pointing to RU. `sitemap.xml` contains the 32 localized public routes, while `robots.txt` allows public pages, disallows crawling `/api/`, and points to the absolute sitemap URL. The root `/favicon.ico` now uses the existing byte-identical favicon asset.
+## Testing and Quality
 
-`NEXT_PUBLIC_SITE_URL` accepts only an absolute HTTP(S) origin without credentials, query, hash, or path. It falls back to `http://localhost:3000` locally; set the real site origin before a production build. No production domain, analytics, or speculative structured data is included.
+The automated Vitest suite covers apartment data and manifests, localized date and calendar logic, booking validation, trusted quotes, request security boundaries, CAPTCHA, mail configuration and rendering, redirects, and SEO invariants. Run `npm run test:coverage` for the coverage report and `npm run verify` for the lint, typecheck, test, and production-build checks.
 
-## Future work
+GitHub Actions runs the quality checks, dependency audit, Compose validation, and container build on pushes and pull requests targeting `main`.
 
-The current local anti-abuse layer includes exact-origin and Fetch Metadata checks, the required request header, an 8 KiB body limit, a honeypot, a short-lived one-time CAPTCHA challenge for Home and Reservation submissions, and an in-memory rate limiter. Future production work requires a final CAPTCHA or Turnstile decision, persistent or distributed rate limiting, production secret management, booking persistence and idempotency, monitoring, and the final production SEO, accessibility, and regression review.
+## Project Scope and Limitations
 
-## Quality audit
+Moscow Apartments is a portfolio/demo application with static apartment data. It has no production database and does not implement real payments. Production SMTP credentials are not stored in the repository; local email delivery is tested through Mailpit, while production SMTP requires private environment configuration.
 
-Stage 9B completed a local production-build quality audit across the RU/EN core routes, legacy redirects, SEO endpoints, booking API, Docker Compose, and Mailpit delivery. The audit added a keyboard-accessible skip link, mobile drawer focus management, an explicit carousel pause/resume control, defensive response headers, and a narrow mobile overflow fix for apartment detail rules. Local checks passed with no dependency changes; Lighthouse was not run because it was not installed and no new package was added. This audit is not a WCAG certification, penetration test, field Core Web Vitals report, or production deployment approval.
+There is no public Live Demo or production deployment in this repository. GitHub Pages is not suitable because the booking API, CAPTCHA, and server-side email delivery require a Node.js runtime. Inventory management, booking persistence, idempotency, and production operations remain outside the public portfolio version.
+
+## Technical Documentation
+
+For implementation details, see [Technical Overview](docs/technical-overview.md).
