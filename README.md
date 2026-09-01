@@ -77,6 +77,15 @@ The UI is built with React and App Router server components, while booking reque
 - Nodemailer supports disabled, local Mailpit, and explicitly configured SMTP modes.
 - Booking data is not stored in a production database in this public version; it remains in memory during the request and is passed to the configured mail transport.
 
+## Project Structure
+
+- `src/app/` contains the App Router routes and localized layouts.
+- `src/components/` contains reusable page, navigation, form, gallery, and booking UI.
+- `src/data/apartments/` is the typed static source for catalog, detail, carousel, and booking data.
+- `src/server/` contains booking validation, CAPTCHA, rate limiting, and mail delivery code.
+- `tests/` contains the Vitest unit and integration coverage for the application boundaries.
+- `public/` contains the local static assets used by the interface.
+
 ## Getting Started
 
 The interface can be opened without SMTP or Docker configuration.

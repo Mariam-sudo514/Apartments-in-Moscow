@@ -1,6 +1,6 @@
 'use client';
 
-import {usePathname, useRouter} from 'next/navigation';
+import {usePathname} from 'next/navigation';
 
 import {locales, type Locale} from '@/types/locale';
 
@@ -68,7 +68,6 @@ export function LanguageSwitcher({
   ruLabel
 }: LanguageSwitcherProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const currentPathname = getSafePathname(pathname);
   const links = locales.map((locale) => ({
     locale,
@@ -96,7 +95,9 @@ export function LanguageSwitcher({
 
             if (nextHref !== href) {
               event.preventDefault();
-              router.push(nextHref);
+              window.location.assign(
+                new URL(nextHref, window.location.origin)
+              );
             }
           }}
         >

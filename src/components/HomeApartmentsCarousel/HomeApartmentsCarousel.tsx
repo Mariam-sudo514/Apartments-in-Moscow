@@ -1,8 +1,8 @@
 'use client';
 
-import {useEffect, useRef, useSyncExternalStore} from 'react';
+import {useEffect, useRef, useSyncExternalStore, type KeyboardEvent} from 'react';
 import Swiper from 'swiper';
-import {Autoplay, Navigation, Pagination} from 'swiper/modules';
+import {A11y, Autoplay, Keyboard, Navigation, Pagination} from 'swiper/modules';
 
 import {Link} from '@/i18n/navigation';
 
@@ -49,6 +49,15 @@ function getReducedMotionServerSnapshot(): boolean {
   return false;
 }
 
+function handleNavigationKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+  if (event.key !== 'Enter' && event.key !== ' ') {
+    return;
+  }
+
+  event.preventDefault();
+  event.currentTarget.click();
+}
+
 export function HomeApartmentsCarousel({slides}: HomeApartmentsCarouselProps) {
   const reducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
@@ -73,7 +82,7 @@ export function HomeApartmentsCarousel({slides}: HomeApartmentsCarouselProps) {
     }
 
     const swiper = new Swiper(root, {
-      modules: [Autoplay, Pagination, Navigation],
+      modules: [Autoplay, Pagination, Navigation, Keyboard, A11y],
       loop: true,
       spaceBetween: 30,
       autoplay: reducedMotion
@@ -91,6 +100,13 @@ export function HomeApartmentsCarousel({slides}: HomeApartmentsCarouselProps) {
       navigation: {
         nextEl: next,
         prevEl: previous,
+      },
+      keyboard: {
+        enabled: true,
+        onlyInViewport: true,
+      },
+      a11y: {
+        enabled: true,
       },
       breakpoints: {
         0: {slidesPerView: 1},
@@ -141,8 +157,16 @@ export function HomeApartmentsCarousel({slides}: HomeApartmentsCarouselProps) {
           ))}
         </div>
         <div className="swiper-pagination" />
-        <div className="swiper-button-prev" />
-        <div className="swiper-button-next" />
+        <button
+          className="swiper-button-prev"
+          onKeyDown={handleNavigationKeyDown}
+          type="button"
+        />
+        <button
+          className="swiper-button-next"
+          onKeyDown={handleNavigationKeyDown}
+          type="button"
+        />
       </div>
     </div>
   );

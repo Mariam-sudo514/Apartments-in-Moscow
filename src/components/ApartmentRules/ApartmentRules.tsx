@@ -13,7 +13,7 @@ type ApartmentRulesProps = {
 export function ApartmentRules({block}: ApartmentRulesProps) {
   return (
     <div className={styles.block}>
-      <h1 className={`${styles.title} ${styles.rules}`}>{block.title}</h1>
+      <h2 className={`${styles.title} ${styles.rules}`}>{block.title}</h2>
       <ul className={`${styles.list} ${styles.rulesList}`}>
         {block.timings.map((timing) => (
           <li className={styles.rulesItem} key={timing.icon}>

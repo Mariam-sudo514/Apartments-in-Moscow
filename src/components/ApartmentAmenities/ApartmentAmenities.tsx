@@ -12,7 +12,7 @@ export function ApartmentAmenities({columns, title}: ApartmentAmenitiesProps) {
 
   return (
     <div className={styles.block}>
-      <h1 className={`${styles.title} ${styles.facilities}`}>{title}</h1>
+      <h2 className={`${styles.title} ${styles.facilities}`}>{title}</h2>
       <div className={styles.rulesList}>
         {columns.map((column, columnIndex) => (
           <ul className={styles.list} key={`amenity-column-${columnIndex}`}>

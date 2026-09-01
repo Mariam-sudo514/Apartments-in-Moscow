@@ -7,6 +7,8 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  allowedDevOrigins: ['192.168.100.184'],
+   devIndicators: false,
   poweredByHeader: false,
   headers: async () => [
     {

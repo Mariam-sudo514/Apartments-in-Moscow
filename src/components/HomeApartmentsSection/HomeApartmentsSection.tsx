@@ -16,9 +16,9 @@ export async function HomeApartmentsSection({locale}: HomeApartmentsSectionProps
   return (
     <>
       <div className={styles.titleBlock}>
-        <h1 className={styles.title} id="apartments">
+        <h2 className={styles.title} id="apartments">
           {homeT('title')}
-        </h1>
+        </h2>
       </div>
       <HomeApartmentsCarousel slides={getLocalizedLegacyHomeApartments(locale)} />
     </>

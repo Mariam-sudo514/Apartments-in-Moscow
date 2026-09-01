@@ -10,7 +10,7 @@ type ApartmentMapProps = {
 export function ApartmentMap({map, title}: ApartmentMapProps) {
   return (
     <div className={`${styles.block} ${styles.blockMaps}`}>
-      <h1 className={`${styles.title} ${styles.maps}`}>{title}</h1>
+      <h2 className={`${styles.title} ${styles.maps}`}>{title}</h2>
       <div className={styles.mapSection}>
         <div className={styles.mapFrame}>
           <iframe

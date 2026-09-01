@@ -483,7 +483,7 @@ export function HomeBookingForm({apartments, labels, locale}: HomeBookingFormPro
   return (
     <>
       <div className={styles.formContainer}>
-        <h1 className={styles.formTitle}>{labels.title}</h1>
+        <h2 className={styles.formTitle}>{labels.title}</h2>
         <p className={styles.formText}>{labels.description}</p>
         <form
           noValidate
