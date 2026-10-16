@@ -13,7 +13,6 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.test.ts'],
     coverage: {
-      all: false,
       include: [
         'src/config/legacy-redirects.ts',
         'src/data/apartments/apartment-queries.ts',
